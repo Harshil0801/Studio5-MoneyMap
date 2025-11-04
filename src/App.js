@@ -1,52 +1,49 @@
 import React from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import Dashboard from "./pages/Dashboard";
+import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
-import { auth } from "./firebase";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 function App() {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [isLogin, setIsLogin] = React.useState(true);
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
+}
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (isLogin) {
-        await signInWithEmailAndPassword(auth, email, password);
-        alert("Login successful!");
-      } else {
-        await createUserWithEmailAndPassword(auth, email, password);
-        alert("Account created!");
-      }
-    } catch (error) {
-      alert(error.message);
-    }
-  };
+function AppContent() {
+  const location = useLocation();
+
+  // Hide Navbar on these paths 👇
+  const hideNavbarPaths = ["/login", "/register", "/forgot-password"];
+  const shouldHideNavbar = hideNavbarPaths.includes(location.pathname);
 
   return (
-    <div className="App">
-      <h1>Studio5 MoneyMap</h1>
-      <div className="form-container">
-        <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            placeholder="Email"
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button type="submit">{isLogin ? "Login" : "Register"}</button>
-        </form>
-        <p onClick={() => setIsLogin(!isLogin)} className="toggle-text">
-          {isLogin ? "Create a new account" : "Already have an account? Login"}
-        </p>
-      </div>
-    </div>
+    <>
+      {!shouldHideNavbar && <Navbar />}
+      <Routes>
+        {/* 👇 Default route (Home page) */}
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </>
   );
 }
 
