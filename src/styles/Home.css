@@ -1,0 +1,74 @@
+.home {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #008080 0%, #00bfa5 100%);
+  color: white;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+}
+
+.home-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.home-title {
+  font-size: 2.8rem;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.home-subtitle {
+  font-size: 1.2rem;
+  max-width: 500px;
+  margin: 0 auto 30px;
+  line-height: 1.6;
+  color: #e0f7fa;
+}
+
+.home-buttons {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.login-btn {
+  background-color: white;
+  color: #008080;
+}
+
+.login-btn:hover {
+  background-color: #e0f2f1;
+}
+
+.register-btn {
+  background-color: transparent;
+  border: 2px solid white;
+  color: white;
+}
+
+.register-btn:hover {
+  background-color: white;
+  color: #008080;
+}
+
+.home-footer {
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  color: #d0f0ec;
+}
