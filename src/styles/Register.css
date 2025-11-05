@@ -1,54 +1,68 @@
+/* Login.css & Register.css */
 .login-page, .register-page, .reset-page {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 85vh;
+  min-height: 100vh;
+  background: #f9fafb;
 }
 
 .login-container, .register-container, .reset-container {
   background: white;
-  padding: 35px;
-  width: 360px;
-  border-radius: 15px;
-  box-shadow: 0 5px 18px rgba(0, 128, 128, 0.15);
+  padding: 2rem 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  width: 350px;
   text-align: center;
-  animation: fadeIn 0.8s ease-in-out;
 }
 
-h2 {
-  color: #008080;
-  margin-bottom: 20px;
+.login-container h2, .register-container h2, .reset-container h2 {
+  margin-bottom: 1.5rem;
+  color: #1f2937;
 }
 
-input, select {
+input {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
-  border: 1px solid #ccc;
+  padding: 0.7rem;
+  margin-bottom: 1rem;
   border-radius: 8px;
-  font-size: 14px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  font-size: 1rem;
+}
+
+input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
 }
 
 button {
   width: 100%;
-  padding: 12px;
-  background-color: #008080;
-  color: white;
+  padding: 0.7rem;
   border: none;
   border-radius: 8px;
+  background: #3b82f6;
+  color: white;
+  font-weight: 500;
   cursor: pointer;
-  font-weight: 600;
+  transition: background 0.2s;
 }
 
 button:hover {
-  background-color: #006666;
+  background: #2563eb;
 }
 
-a {
-  color: #008080;
+.login-links, .register-container p {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.login-links a, .register-container a {
+  color: #3b82f6;
   text-decoration: none;
 }
 
-a:hover {
+.login-links a:hover, .register-container a:hover {
   text-decoration: underline;
 }
