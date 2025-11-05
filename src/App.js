@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -7,9 +12,11 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
-import "./App.css";
-import Contact from "./pages/Contact"
+import Contact from "./pages/Contact";
 import Terms from "./pages/Terms";
+import BudgetAdvisor from "./components/BudgetAdvisor";
+import "./App.css";
+
 function App() {
   return (
     <Router>
@@ -27,9 +34,11 @@ function AppContent() {
 
   return (
     <>
+      {/* ✅ Show Navbar on most pages */}
       {!shouldHideNavbar && <Navbar />}
+
+      {/* ✅ Define all routes */}
       <Routes>
-        {/* 👇 Default route (Home page) */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -45,6 +54,9 @@ function AppContent() {
           }
         />
       </Routes>
+
+      {/* ✅ Floating AI Assistant (visible on all pages) */}
+      {!shouldHideNavbar && <BudgetAdvisor />}
     </>
   );
 }
