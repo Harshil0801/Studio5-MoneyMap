@@ -9,6 +9,7 @@ import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 import Contact from "./pages/Contact"
+import Terms from "./pages/Terms";
 function App() {
   return (
     <Router>
@@ -34,7 +35,7 @@ function AppContent() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/contact" element={<Contact />} />
-
+        <Route path="/terms" element={<Terms />} />
         <Route
           path="/dashboard"
           element={
