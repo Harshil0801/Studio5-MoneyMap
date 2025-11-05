@@ -30,7 +30,8 @@ function Navbar() {
         {!user && <Link to="/login">Login</Link>}
         {!user && <Link to="/register">Register</Link>}
         {user && <Link to="/dashboard">Dashboard</Link>}
-             <Link to="/contact">Contact</Link>
+          <Link to="/contact">Contact</Link>
+           <Link to="/terms">Terms & Conditions</Link>
 
         {/* 👇 Show Logout only if user is logged in */}
         {user && (
