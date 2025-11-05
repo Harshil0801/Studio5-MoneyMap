@@ -1,74 +1,238 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
+
 .home {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #008080 0%, #00bfa5 100%);
-  color: white;
-  text-align: center;
   font-family: "Poppins", sans-serif;
+  overflow-x: hidden;
 }
 
-.home-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 40px 20px;
+/* ---------- HERO ---------- */
+.hero {
+  background: linear-gradient(145deg, #e0f0ff, #b5dcff);
+  text-align: center;
+  padding: 120px 20px;
+  position: relative;
 }
 
-.home-title {
-  font-size: 2.8rem;
-  margin-bottom: 15px;
-  font-weight: 700;
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(0, 120, 255, 0.15), transparent);
+  top: -100px;
+  right: -100px;
+  border-radius: 50%;
+  filter: blur(40px);
 }
 
-.home-subtitle {
-  font-size: 1.2rem;
-  max-width: 500px;
-  margin: 0 auto 30px;
-  line-height: 1.6;
-  color: #e0f7fa;
+.hero-content h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #1e293b;
 }
 
-.home-buttons {
-  display: flex;
-  gap: 20px;
+.hero-content span {
+  color: #0078ff;
+}
+
+.hero-content p {
   margin-top: 20px;
+  color: #475569;
+  font-size: 1.2rem;
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-buttons {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
 .btn {
-  padding: 12px 25px;
-  border-radius: 25px;
-  font-size: 1rem;
+  padding: 14px 30px;
+  border-radius: 10px;
   font-weight: 600;
-  text-decoration: none;
   transition: all 0.3s ease;
+  text-decoration: none;
 }
 
-.login-btn {
-  background-color: white;
-  color: #008080;
+.btn.primary {
+  background: linear-gradient(135deg, #0078ff, #00b4ff);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 120, 255, 0.4);
 }
 
-.login-btn:hover {
-  background-color: #e0f2f1;
+.btn.secondary {
+  border: 2px solid #0078ff;
+  color: #0078ff;
+  background: white;
 }
 
-.register-btn {
-  background-color: transparent;
-  border: 2px solid white;
+.btn:hover {
+  transform: translateY(-3px);
+  opacity: 0.95;
+}
+
+/* ---------- FEATURES ---------- */
+.features {
+  background: white;
+  padding: 100px 20px;
+  text-align: center;
+}
+
+.features h2 {
+  font-size: 2.4rem;
+  color: #1e293b;
+  margin-bottom: 50px;
+}
+
+.features span {
+  color: #0078ff;
+}
+
+.feature-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 35px;
+}
+
+.feature-card {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+  padding: 40px 25px;
+  width: 280px;
+  transition: all 0.4s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px) scale(1.03);
+  box-shadow: 0 10px 30px rgba(0, 120, 255, 0.2);
+}
+
+.feature-card i {
+  font-size: 2.5rem;
+  color: #0078ff;
+  margin-bottom: 10px;
+}
+
+/* ---------- HOW IT WORKS ---------- */
+.how-it-works {
+  background: linear-gradient(180deg, #f8fbff 0%, #eaf5ff 100%);
+  padding: 100px 20px;
+  text-align: center;
+}
+
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+.step {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  width: 260px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s;
+}
+
+.step:hover {
+  transform: translateY(-8px);
+}
+
+.step span {
+  background: #0078ff;
+  color: #fff;
+  border-radius: 50%;
+  padding: 12px 18px;
+  font-weight: bold;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+/* ---------- TESTIMONIALS ---------- */
+.testimonials {
+  background: #eef6ff;
+  padding: 100px 20px;
+  text-align: center;
+}
+
+.testimonial-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+}
+
+.testimonial {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  width: 280px;
+}
+
+/* ---------- CTA ---------- */
+.cta {
+  background: linear-gradient(135deg, #0078ff, #00b4ff);
   color: white;
+  text-align: center;
+  padding: 100px 20px;
+  position: relative;
 }
 
-.register-btn:hover {
-  background-color: white;
-  color: #008080;
+.cta h2 {
+  font-size: 2rem;
+  margin-bottom: 25px;
 }
 
-.home-footer {
-  padding: 15px;
-  background: rgba(255, 255, 255, 0.1);
-  font-size: 0.9rem;
-  color: #d0f0ec;
+.cta-btn {
+  background: white;
+  color: #0078ff;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 14px 32px;
+  transition: 0.3s ease;
+}
+
+.cta-btn:hover {
+  transform: scale(1.08);
+}
+
+/* ---------- FOOTER ---------- */
+.footer {
+  background: #0f172a;
+  color: #ccc;
+  text-align: center;
+  padding: 40px 10px;
+}
+
+.footer-links a {
+  color: #ccc;
+  margin: 0 12px;
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: #fff;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 768px) {
+  .hero-content h1 {
+    font-size: 2.2rem;
+  }
+  .feature-card,
+  .step,
+  .testimonial {
+    width: 90%;
+  }
 }
