@@ -5,16 +5,18 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
-import Dashboard from "./pages/Dashboard";
-import Navbar from "./components/Navbar";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Contact from "./pages/Contact";
-import Terms from "./pages/Terms";
-import BudgetAdvisor from "./components/BudgetAdvisor";
+import Home from "./pages/Home.js";
+import Login from "./pages/Login.js";
+import Register from "./pages/Register.js";
+import ForgotPassword from "./pages/ForgotPassword.js";
+import Dashboard from "./pages/Dashboard.js";
+import Navbar from "./components/Navbar.js";
+import ProtectedRoute from "./components/ProtectedRoute.js";
+import Contact from "./pages/Contact.js";
+import Terms from "./pages/Terms.js";
+import BudgetAdvisor from "./components/BudgetAdvisor.js";
+
+
 import "./App.css";
 
 function App() {

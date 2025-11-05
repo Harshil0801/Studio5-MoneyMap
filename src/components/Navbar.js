@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signOut, onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth } from "../firebase.js"; // ✅ Added .js
 import "../styles/Navbar.css";
 
 function Navbar() {
@@ -30,8 +30,8 @@ function Navbar() {
         {!user && <Link to="/login">Login</Link>}
         {!user && <Link to="/register">Register</Link>}
         {user && <Link to="/dashboard">Dashboard</Link>}
-          <Link to="/contact">Contact</Link>
-           <Link to="/terms">Terms & Conditions</Link>
+        <Link to="/contact">Contact</Link>
+        <Link to="/terms">Terms & Conditions</Link>
 
         {/* 👇 Show Logout only if user is logged in */}
         {user && (

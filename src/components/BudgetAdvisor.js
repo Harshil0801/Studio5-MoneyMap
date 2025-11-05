@@ -1,63 +1,46 @@
 import React, { useState } from "react";
-import OpenAI from "openai";
 import "../styles/BudgetAdvisor.css";
-
-// Initialize OpenAI SDK
-const openai = new OpenAI({
-  apiKey: process.env.REACT_APP_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true, // Only for testing in React
-});
 
 function BudgetAdvisor() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { from: "bot", text: "👋 Hi! I’m your MoneyMap AI Budget Advisor. How can I help you today?" }
+    { from: "bot", text: "👋 Hi! I’m your MoneyMap AI Budget Advisor. How can I help you today?" },
   ]);
   const [input, setInput] = useState("");
 
   const handleToggle = () => setIsOpen(!isOpen);
 
-  // 🧠 Handle message send
   const handleSend = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
 
     const userMsg = { from: "user", text: input };
-    const updatedMessages = [...messages, userMsg];
-    setMessages(updatedMessages);
+    setMessages((prev) => [...prev, userMsg]);
     setInput("");
 
-    // Show typing animation
     setMessages((prev) => [...prev, { from: "bot", text: "💭 Typing..." }]);
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are MoneyMap, a friendly financial assistant that helps users manage money, savings, and expenses in a simple way."
-          },
-          { role: "user", content: input },
-        ],
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: input }),
       });
 
-      const aiMessage = response.choices[0].message.content;
+      const data = await res.json();
 
-      // Replace typing message with AI response
       setMessages((prev) => {
         const copy = [...prev];
-        copy[copy.length - 1] = { from: "bot", text: aiMessage };
+        copy[copy.length - 1] = { from: "bot", text: data.reply || "⚠️ No response from AI" };
         return copy;
       });
     } catch (error) {
-      console.error("OpenAI API Error:", error);
+      console.error(error);
       setMessages((prev) => {
         const copy = [...prev];
         copy[copy.length - 1] = {
           from: "bot",
-          text: "⚠️ Sorry, I couldn’t connect to the AI service right now.",
+          text: "⚠️ Unable to connect to AI service. Try again later.",
         };
         return copy;
       });
@@ -66,12 +49,8 @@ function BudgetAdvisor() {
 
   return (
     <div className="chatbot">
-      {/* Floating chat icon */}
-      <button className="chat-toggle" onClick={handleToggle}>
-        💬
-      </button>
+      <button className="chat-toggle" onClick={handleToggle}>💬</button>
 
-      {/* Chat window */}
       {isOpen && (
         <div className="chat-window">
           <div className="chat-header">
