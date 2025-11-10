@@ -1,8 +1,4 @@
 import React, { useState } from "react";
- feature/ai-assistant
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase.js"; // ✅ Added .js extension
- 
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -10,24 +6,11 @@ import {
 } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { setDoc, doc, getDoc } from "firebase/firestore";
-  main
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/Register.css";
 
 function Register() {
-  feature/ai-assistant
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false); // 🕓 loading state
-  const navigate = useNavigate();
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-
-    // 🔒 Basic password strength check
-    if (password.length < 6) {
-      alert("⚠️ Password must be at least 6 characters long.");
- 
+  // Form data
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -42,44 +25,22 @@ function Register() {
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
 
+  // Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Email/password registration
+  // 🔹 Email/password registration
   const handleRegister = async (e) => {
     e.preventDefault();
+
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-  main
+      alert("⚠️ Passwords do not match!");
       return;
     }
 
     setLoading(true);
     try {
- feature/ai-assistant
-      await createUserWithEmailAndPassword(auth, email, password);
-      alert("✅ Account created successfully!");
-      navigate("/dashboard");
-    } catch (error) {
-      // 🎯 Friendly Firebase error messages
-      switch (error.code) {
-        case "auth/email-already-in-use":
-          alert("⚠️ This email is already registered. Try logging in.");
-          break;
-        case "auth/invalid-email":
-          alert("❌ Please enter a valid email address.");
-          break;
-        case "auth/weak-password":
-          alert("⚠️ Password is too weak. Try adding numbers or symbols.");
-          break;
-        default:
-          alert("Something went wrong. Please try again later.");
-          console.error(error);
-      }
-    } finally {
-      setLoading(false);
- 
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         formData.email,
@@ -87,6 +48,7 @@ function Register() {
       );
       const user = userCredential.user;
 
+      // Store user info in Firestore
       await setDoc(doc(db, "users", user.uid), {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -98,15 +60,25 @@ function Register() {
         authProvider: "email",
       });
 
-      alert(" Account created successfully!");
+      alert("✅ Account created successfully!");
       navigate("/login");
     } catch (error) {
-      alert(error.message);
+      console.error(error);
+      if (error.code === "auth/email-already-in-use") {
+        alert("⚠️ This email is already registered.");
+      } else if (error.code === "auth/invalid-email") {
+        alert("❌ Invalid email address.");
+      } else if (error.code === "auth/weak-password") {
+        alert("⚠️ Password is too weak.");
+      } else {
+        alert("❌ Something went wrong. Please try again later.");
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  
+  // 🔹 Google Sign-Up
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
@@ -128,41 +100,16 @@ function Register() {
         });
       }
 
-      alert("Signed in with Google successfully!");
-      navigate("/login");
+      alert("✅ Signed in successfully with Google!");
+      navigate("/dashboard");
     } catch (error) {
       console.error(error);
-      alert(error.message);
-  main
+      alert("❌ " + error.message);
     }
   };
 
   return (
     <div className="register-page">
- feature/ai-assistant
-      <div className="register-container">
-        <h2>Create Account</h2>
-        <form onSubmit={handleRegister}>
-          <input
-            type="email"
-            placeholder="Email"
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete="new-password"
-          />
-          <button type="submit" disabled={loading}>
-            {loading ? "Creating..." : "Register"}
-          </button>
-        </form>
-        <p>
- 
       <div className="register-card">
         <h2 className="register-title">Create Your Account</h2>
         <p className="register-subtitle">
@@ -233,13 +180,11 @@ function Register() {
             required
           />
 
-          {/* Primary Sign Up button */}
           <button className="primary-btn" type="submit" disabled={loading}>
             {loading ? "Registering..." : "Sign Up"}
           </button>
         </form>
 
-        {/* Google Sign-in button */}
         <div className="google-btn-container">
           <button className="google-btn" onClick={handleGoogleSignIn}>
             <img
@@ -251,7 +196,6 @@ function Register() {
         </div>
 
         <p className="register-footer">
-  main
           Already have an account? <Link to="/login">Login</Link>
         </p>
       </div>

@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signOut, onAuthStateChanged } from "firebase/auth";
-  feature/ai-assistant
-import { auth } from "../firebase.js"; // ✅ Added .js
+ 
  
 import { auth } from "../firebase";
-  main
+
 import "../styles/Navbar.css";
 
 function Navbar() {
@@ -34,20 +33,11 @@ function Navbar() {
         {!user && <Link to="/login">Login</Link>}
         {!user && <Link to="/register">Register</Link>}
         {user && <Link to="/dashboard">Dashboard</Link>}
-  feature/ai-assistant
+  
         <Link to="/contact">Contact</Link>
         <Link to="/terms">Terms & Conditions</Link>
  
-          <Link to="/contact">Contact</Link>
-           <Link to="/terms">Terms & Conditions</Link>
-  main
-
-        {/* 👇 Show Logout only if user is logged in */}
-        {user && (
-          <button onClick={handleLogout} className="logout-btn">
-            Logout
-          </button>
-        )}
+        
       </div>
     </nav>
   );
