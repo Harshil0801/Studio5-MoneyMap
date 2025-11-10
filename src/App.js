@@ -5,9 +5,12 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
+import Feedback from "./pages/Feedback";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
+
+
 import Contact from "./pages/Contact"
 import Terms from "./pages/Terms";
 function App() {
@@ -36,6 +39,8 @@ function AppContent() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/feedback" element={<Feedback />} />
+
         <Route
           path="/dashboard"
           element={
