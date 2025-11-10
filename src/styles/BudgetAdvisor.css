@@ -1,0 +1,145 @@
+.chatbot {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  font-family: "Poppins", sans-serif;
+}
+
+/* 💬 Floating chat icon */
+.chat-toggle {
+  background: #0078ff;
+  color: white;
+  font-size: 24px;
+  border: none;
+  border-radius: 50%;
+  width: 55px;
+  height: 55px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: 0.3s;
+}
+
+.chat-toggle:hover {
+  background: #005fcc;
+}
+
+/* 💬 Chat window box */
+.chat-window {
+  background: white;
+  width: 320px;
+  height: 460px;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 🟦 Header */
+.chat-header {
+  background: #0078ff;
+  color: white;
+  padding: 12px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  border-radius: 15px 15px 0 0;
+}
+
+.chat-header button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* 💭 Chat body (messages) */
+.chat-body {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scroll-behavior: smooth;
+  background: #f9fbff;
+}
+
+/* 💬 Message bubbles */
+.chat-msg {
+  padding: 10px 14px;
+  border-radius: 12px;
+  max-width: 80%;
+  word-wrap: break-word;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.chat-msg.bot {
+  background: #eef5ff;
+  align-self: flex-start;
+}
+
+.chat-msg.user {
+  background: #0078ff;
+  color: white;
+  align-self: flex-end;
+}
+
+/* 🧠 Input section (fixed alignment + width) */
+.chat-input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #e5e5e5;
+  background: #ffffff;
+  border-radius: 0 0 15px 15px;
+  box-shadow: 0 -3px 8px rgba(0, 0, 0, 0.05);
+  padding: 0 8px; /* ✅ adds space around elements */
+  box-sizing: border-box;
+}
+
+/* ✍️ Input field */
+.chat-input input {
+  flex: 1;
+  border: none;
+  padding: 12px 14px;
+  outline: none;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  background-color: #f7f9fc;
+  height: 38px;
+  margin-right: 8px;
+}
+
+/* 🚀 Send button (fixed size & round edges) */
+.chat-input button {
+  background: #0078ff;
+  color: white;
+  border: none;
+  padding: 0 18px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: 0.2s ease;
+  border-radius: 10px;
+  height: 38px;
+  width: 45px; /* ✅ keeps it perfectly square */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-input button:hover {
+  background: #005fcc;
+}
+
+/* 📱 Responsive */
+@media (max-width: 480px) {
+  .chat-window {
+    width: 90%;
+    height: 420px;
+  }
+}

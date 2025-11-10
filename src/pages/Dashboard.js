@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
+  feature/ai-assistant
+import { auth } from "../firebase.js"; // ✅ fixed import
+ 
 import { auth } from "../firebase";
+  main
 import "../styles/ForgotPassword.css";
 
 function ForgotPassword() {
@@ -21,7 +25,16 @@ function ForgotPassword() {
       <div className="reset-container">
         <h2>Reset Password</h2>
         <form onSubmit={handleReset}>
+ feature/ai-assistant
+          <input
+            type="email"
+            placeholder="Enter your email"
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+ 
           <input type="email" placeholder="Enter your email" onChange={(e) => setEmail(e.target.value)} required />
+  main
           <button type="submit">Send Reset Link</button>
         </form>
       </div>
