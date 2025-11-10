@@ -9,23 +9,25 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <h2 className="dashboard-title">Smart Budget Dashboard</h2>
+      {/* <h2 className="dashboard-title"></h2> */}
 
       <div className="dashboard-tabs">
-        <button 
-          className={activeTab === 'history' ? 'active' : ''} 
+        <button
+          className={activeTab === 'history' ? 'active' : ''}
           onClick={() => setActiveTab('history')}
         >
           History
         </button>
-        <button 
-          className={activeTab === 'overview' ? 'active' : ''} 
+
+        <button
+          className={activeTab === 'overview' ? 'active' : ''}
           onClick={() => setActiveTab('overview')}
         >
           Overview
         </button>
-        <button 
-          className={activeTab === 'add' ? 'active' : ''} 
+
+        <button
+          className={activeTab === 'add' ? 'active' : ''}
           onClick={() => setActiveTab('add')}
         >
           Add Transaction
