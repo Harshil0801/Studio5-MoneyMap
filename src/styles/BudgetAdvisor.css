@@ -143,3 +143,169 @@
     height: 420px;
   }
 }
+.chat-msg.bot,
+.chat-msg.user {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-msg.bot {
+  background: #eef3ff;
+  color: #1a237e;
+  align-self: flex-start;
+  border-radius: 12px 12px 12px 0;
+  padding: 8px 12px;
+  margin: 6px 0;
+  max-width: 75%;
+}
+
+.chat-msg.user {
+  background: #d8ffd8;
+  color: #1b5e20;
+  align-self: flex-end;
+  border-radius: 12px 12px 0 12px;
+  padding: 8px 12px;
+  margin: 6px 0;
+  max-width: 75%;
+}
+
+.fade-in {
+  animation: fadeIn 0.35s ease-in-out;
+}
+
+.chat-body {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: 400px;
+  padding: 10px;
+}
+
+.chat-window {
+  position: fixed;
+  bottom: 90px;
+  right: 25px;
+  width: 320px;
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.chat-header {
+  background: #304ffe;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+}
+
+.chat-input {
+  display: flex;
+  border-top: 1px solid #ddd;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  outline: none;
+}
+
+.chat-input button {
+  background: #304ffe;
+  color: white;
+  border: none;
+  padding: 0 12px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.chat-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 25px;
+  background: #304ffe;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 26px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+.sound-toggle {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  margin-right: 8px;
+  color: white;
+}
+
+.sound-toggle:hover {
+  transform: scale(1.1);
+  transition: 0.2s;
+}
+
+/* Message animations */
+.chat-msg.bot,
+.chat-msg.user {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.mic-btn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.mic-btn.active {
+  color: red;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.tooltip {
+  position: absolute;
+  top: 45px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  z-index: 999;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
