@@ -6,6 +6,7 @@ import "../styles/Feedback.css";
 function Feedback() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,11 +23,12 @@ function Feedback() {
         status: "pending",
       });
 
-      alert("Thank you for your feedback!");
+      setSuccess(true);
       setMessage("");
+      setTimeout(() => setSuccess(false), 3000); // Hide message after 3s
     } catch (error) {
       console.error("Error submitting feedback:", error);
-      alert("Failed to submit feedback. Please try again.");
+      alert("⚠️ Failed to submit feedback. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -34,19 +36,33 @@ function Feedback() {
 
   return (
     <div className="feedback-page">
-      <div className="feedback-container">
-        <h2>We’d love your feedback 💬</h2>
+      <div className="feedback-card">
+        <h2 className="feedback-title">💬 We’d love your feedback!</h2>
+        <p className="feedback-subtitle">
+          Your feedback helps us improve MoneyMap and make your budgeting experience even better.
+        </p>
+
         <form onSubmit={handleSubmit}>
           <textarea
+            className="feedback-textarea"
             placeholder="Share your thoughts, suggestions, or issues..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             required
           ></textarea>
-          <button type="submit" disabled={loading}>
+
+          <button
+            type="submit"
+            className="feedback-btn"
+            disabled={loading}
+          >
             {loading ? "Submitting..." : "Submit Feedback"}
           </button>
         </form>
+
+        {success && (
+          <p className="feedback-success">✅ Thank you! Your feedback has been submitted.</p>
+        )}
       </div>
     </div>
   );
