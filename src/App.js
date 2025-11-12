@@ -1,15 +1,26 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
+
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
+import Feedback from "./pages/Feedback";
+import Contact from "./pages/Contact";
+import Terms from "./pages/Terms";
+
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import BudgetAdvisor from "./components/BudgetAdvisor";
+
 import "./App.css";
-import Contact from "./pages/Contact"
-import Terms from "./pages/Terms";
+
 function App() {
   return (
     <Router>
@@ -27,15 +38,18 @@ function AppContent() {
 
   return (
     <>
+      {/* ✅ Show Navbar on most pages */}
       {!shouldHideNavbar && <Navbar />}
+
+      {/* ✅ Define all routes */}
       <Routes>
-        {/* 👇 Default route (Home page) */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/feedback" element={<Feedback />} />
         <Route
           path="/dashboard"
           element={
@@ -45,6 +59,9 @@ function AppContent() {
           }
         />
       </Routes>
+
+      {/* ✅ Floating AI Assistant (visible on all pages except auth) */}
+      {!shouldHideNavbar && <BudgetAdvisor />}
     </>
   );
 }
