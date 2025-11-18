@@ -10,7 +10,6 @@ import { Link, useNavigate } from "react-router-dom";
 import "../styles/Register.css";
 
 function Register() {
-  // Form data
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -25,12 +24,11 @@ function Register() {
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
 
-  // Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🔹 Email/password registration
+  // 🔹 Email Registration
   const handleRegister = async (e) => {
     e.preventDefault();
 
@@ -48,7 +46,6 @@ function Register() {
       );
       const user = userCredential.user;
 
-      // Store user info in Firestore
       await setDoc(doc(db, "users", user.uid), {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -64,6 +61,7 @@ function Register() {
       navigate("/login");
     } catch (error) {
       console.error(error);
+
       if (error.code === "auth/email-already-in-use") {
         alert("⚠️ This email is already registered.");
       } else if (error.code === "auth/invalid-email") {
@@ -71,7 +69,7 @@ function Register() {
       } else if (error.code === "auth/weak-password") {
         alert("⚠️ Password is too weak.");
       } else {
-        alert("❌ Something went wrong. Please try again later.");
+        alert("❌ Something went wrong.");
       }
     } finally {
       setLoading(false);
@@ -84,11 +82,11 @@ function Register() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
+      const ref = doc(db, "users", user.uid);
+      const snap = await getDoc(ref);
 
-      if (!userSnap.exists()) {
-        await setDoc(userRef, {
+      if (!snap.exists()) {
+        await setDoc(ref, {
           firstName: user.displayName?.split(" ")[0] || "",
           lastName: user.displayName?.split(" ")[1] || "",
           email: user.email,
@@ -100,10 +98,9 @@ function Register() {
         });
       }
 
-      alert("✅ Signed in successfully with Google!");
+      alert("✅ Google account created!");
       navigate("/dashboard");
     } catch (error) {
-      console.error(error);
       alert("❌ " + error.message);
     }
   };
@@ -126,6 +123,7 @@ function Register() {
               onChange={handleChange}
               required
             />
+
             <input
               type="text"
               name="lastName"
@@ -195,8 +193,14 @@ function Register() {
           </button>
         </div>
 
+        {/* Existing login link */}
         <p className="register-footer">
           Already have an account? <Link to="/login">Login</Link>
+        </p>
+
+        {/* ✅ Back to Home at the bottom */}
+        <p className="back-home-link">
+          <Link to="/">← Back to Home</Link>
         </p>
       </div>
     </div>

@@ -213,4 +213,20 @@ button:hover {
     flex-direction: column;
   }
 }
-  
+  /* Back to Home link at bottom */
+.back-home-link {
+  margin-top: 12px;
+}
+
+.back-home-link a {
+  font-size: 0.95rem;
+  color: #00796b;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.back-home-link a:hover {
+  color: #00594f;
+  text-decoration: underline;
+}
