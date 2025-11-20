@@ -3,17 +3,20 @@ import { db, auth } from "../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import "../styles/Feedback.css";
 
+// State variables
 function Feedback() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
+// Handles submission of feedback to Firestore
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       const user = auth.currentUser;
+      // Add feedback document to Firestore collection
       await addDoc(collection(db, "feedback"), {
         userId: user ? user.uid : "anonymous",
         name: user?.displayName || "Anonymous User",

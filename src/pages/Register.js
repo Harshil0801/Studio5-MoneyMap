@@ -10,7 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "../styles/Register.css";
 
 function Register() {
-  // Form data
+   // State to store form input values for registration fields
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -21,6 +21,7 @@ function Register() {
     confirmPassword: "",
   });
 
+  // Loading state to prevent multiple submissions
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
@@ -30,7 +31,7 @@ function Register() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🔹 Email/password registration
+  // Email/password registration
   const handleRegister = async (e) => {
     e.preventDefault();
 
@@ -78,7 +79,7 @@ function Register() {
     }
   };
 
-  // 🔹 Google Sign-Up
+  //  Handles Google Sign-Up
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
