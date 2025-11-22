@@ -55,20 +55,7 @@ const Dashboard = () => {
       </div>
 
       {/* Reset Password Section */}
-      <div className="reset-page">
-        <div className="reset-container">
-          <h2>Reset Password</h2>
-          <form onSubmit={handleReset}>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <button type="submit">Send Reset Link</button>
-          </form>
-        </div>
-      </div>
+      
     </div>
   );
 };

@@ -1,12 +1,26 @@
 import React, { useState, useEffect } from "react";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db, auth } from "../firebase";
 
 function History() {
   const [transactions, setTransactions] = useState([]);
 
   useEffect(() => {
-    // Example: fetching from localStorage or Firebase later
-    const saved = JSON.parse(localStorage.getItem("transactions")) || [];
-    setTransactions(saved);
+    const fetchFromFirestore = async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const q = query(
+        collection(db, "transactions"),
+        where("uid", "==", user.uid)
+      );
+
+      const snapshot = await getDocs(q);
+      const list = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setTransactions(list);
+    };
+
+    fetchFromFirestore();
   }, []);
 
   return (
@@ -26,23 +40,15 @@ function History() {
         >
           <thead>
             <tr style={{ backgroundColor: "#f0f0f0" }}>
-              <th style={{ padding: "10px", border: "1px solid #ddd" }}>
-                Date
-              </th>
-              <th style={{ padding: "10px", border: "1px solid #ddd" }}>
-                Description
-              </th>
-              <th style={{ padding: "10px", border: "1px solid #ddd" }}>
-                Category
-              </th>
-              <th style={{ padding: "10px", border: "1px solid #ddd" }}>
-                Amount
-              </th>
+              <th style={{ padding: "10px", border: "1px solid #ddd" }}>Date</th>
+              <th style={{ padding: "10px", border: "1px solid #ddd" }}>Description</th>
+              <th style={{ padding: "10px", border: "1px solid #ddd" }}>Category</th>
+              <th style={{ padding: "10px", border: "1px solid #ddd" }}>Amount</th>
             </tr>
           </thead>
           <tbody>
-            {transactions.map((t, index) => (
-              <tr key={index}>
+            {transactions.map((t) => (
+              <tr key={t.id}>
                 <td style={{ padding: "10px", border: "1px solid #ddd" }}>
                   {t.date}
                 </td>

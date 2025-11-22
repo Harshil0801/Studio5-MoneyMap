@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signOut, onAuthStateChanged } from "firebase/auth";
- 
- 
 import { auth } from "../firebase";
 
 import "../styles/Navbar.css";
@@ -11,7 +9,6 @@ function Navbar() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
-  // 🔹 Listen for auth state changes (detects login/logout)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -19,25 +16,45 @@ function Navbar() {
     return () => unsubscribe();
   }, []);
 
-  // 🔹 Handle logout
   const handleLogout = async () => {
     await signOut(auth);
-    navigate("/");
+    navigate("/login");
   };
 
   return (
     <nav className="navbar">
       <h2 className="nav-logo">MoneyMap 💸</h2>
+
       <div className="nav-links">
         <Link to="/">Home</Link>
+
+        {/* Only show when NOT logged in */}
         {!user && <Link to="/login">Login</Link>}
         {!user && <Link to="/register">Register</Link>}
+
+        {/* Show Dashboard only when logged in */}
         {user && <Link to="/dashboard">Dashboard</Link>}
-  
+
         <Link to="/contact">Contact</Link>
         <Link to="/terms">Terms & Conditions</Link>
- 
-        
+
+        {/* Logout shown only when logged in */}
+        {user && (
+          <button
+            onClick={handleLogout}
+            className="logout-btn"
+            style={{
+              background: "none",
+              border: "none",
+              color: "#fff",
+              cursor: "pointer",
+              fontSize: "16px",
+              marginLeft: "10px",
+            }}
+          >
+            Logout
+          </button>
+        )}
       </div>
     </nav>
   );
