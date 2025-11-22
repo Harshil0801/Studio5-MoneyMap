@@ -1,46 +1,87 @@
+/* =====================
+   PAGE BACKGROUND
+   ===================== */
 .contact-page {
   background: linear-gradient(135deg, #e0f3ff, #c8e5ff);
   min-height: 100vh;
+  padding: 40px 20px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
 }
 
+/* =====================
+   MAIN CONTACT BOX
+   ===================== */
 .contact-container {
   background: white;
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  padding: 40px 50px;
-  max-width: 600px;
+  padding: 35px 40px;
+  max-width: 900px;              /* ⬅ INCREASED WIDTH */
   width: 100%;
   text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.contact-container:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
+  margin-bottom: 40px;
 }
 
 .contact-container h1 {
   color: #0078ff;
   font-size: 2rem;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   font-weight: 700;
 }
 
-.contact-container p {
-  color: #555;
-  margin-bottom: 25px;
-  line-height: 1.5;
+/* =====================
+   SUPPORT CARDS
+   ===================== */
+.support-cards {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 1100px;             /* ⬅ WIDER SECTION */
+  margin: 0 auto 25px auto;
+}
+
+.support-card {
+  background: white;
+  width: 300px;                  /* ⬅ INCREASED CARD WIDTH */
+  padding: 22px;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  transition: 0.3s;
+  text-align: center;
+}
+
+/* =====================
+   CATEGORY BUTTONS
+   ===================== */
+.categories {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 900px;              /* ⬅ WIDER */
+}
+
+.cat-box {
+  background: #eef7ff;
+  padding: 12px 22px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid #cce6ff;
   font-size: 1rem;
 }
 
+/* =====================
+   CONTACT FORM (WIDER)
+   ===================== */
 .contact-form {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  max-width: 900px;               /* ⬅ WIDER FORM */
+  margin: 0 auto;
 }
 
 .contact-form input,
@@ -48,45 +89,29 @@
   border: 1px solid #ccc;
   border-radius: 10px;
   padding: 12px 15px;
+  width: 100%;
   font-size: 1rem;
-  outline: none;
-  transition: border 0.3s ease, box-shadow 0.3s ease;
 }
 
-.contact-form input:focus,
-.contact-form textarea:focus {
-  border-color: #0078ff;
-  box-shadow: 0 0 8px rgba(0, 120, 255, 0.2);
+/* =====================
+   FAQ SECTION
+   ===================== */
+.faq-list {
+  max-width: 900px;               /* ⬅ WIDER FAQ SECTION */
+  width: 100%;
+  margin: 25px auto;
 }
 
-.contact-form button {
-  background: linear-gradient(135deg, #0078ff, #00b4ff);
-  color: white;
+details {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+details summary {
+  font-size: 1.1rem;
   font-weight: 600;
-  border: none;
-  border-radius: 10px;
-  padding: 12px 0;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.contact-form button:hover {
-  transform: translateY(-2px);
-  opacity: 0.9;
-}
-
-.thank-you h3 {
   color: #0078ff;
-  margin-bottom: 10px;
-}
-
-.thank-you p {
-  color: #444;
-  font-size: 1rem;
-}
-
-@media (max-width: 768px) {
-  .contact-container {
-    padding: 30px 25px;
-  }
 }

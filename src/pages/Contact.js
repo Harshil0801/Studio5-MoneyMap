@@ -13,17 +13,53 @@ function Contact() {
     e.preventDefault();
     console.log("Form Data Submitted:", formData);
     setSubmitted(true);
+    setTimeout(() => setSubmitted(false), 3000);
   };
 
   return (
     <div className="contact-page">
-      <div className="contact-container">
-        <h1>Contact Support</h1>
-        <p>
-          Have questions about <b>MoneyMap</b> before signing up? We're here to help.
-          Fill out the form below or email us at <b>support@moneymap.com</b>.
-        </p>
 
+      {/* ===== HEADER ===== */}
+      <h1 className="contact-title">Contact Support</h1>
+      <p className="contact-subtitle">
+        Have questions about <b>MoneyMap</b>? We're here to help.
+        <br />
+        Fill out the form below or email us at{" "}
+        <span className="highlight-email">support@moneymap.com</span>.
+      </p>
+
+      {/* ===== SUPPORT INFO CARDS ===== */}
+      <div className="support-cards">
+        <div className="support-card">
+          <i className="fas fa-envelope"></i>
+          <h4>Email Us</h4>
+          <p>support@moneymap.com</p>
+        </div>
+
+        <div className="support-card">
+          <i className="fas fa-phone-alt"></i>
+          <h4>Call Support</h4>
+          <p>+64 021 123 4567</p>
+        </div>
+
+        <div className="support-card">
+          <i className="fas fa-clock"></i>
+          <h4>Working Hours</h4>
+          <p>Mon–Fri, 9AM–6PM</p>
+        </div>
+      </div>
+
+      {/* ===== CATEGORY SHORTCUTS ===== */}
+      <h2 className="section-heading">Support Categories</h2>
+      <div className="categories">
+        <div className="cat-box">💳 Billing Issues</div>
+        <div className="cat-box">🔧 Technical Support</div>
+        <div className="cat-box">👤 Account Help</div>
+        <div className="cat-box">💬 General Inquiry</div>
+      </div>
+
+      {/* ===== FORM ===== */}
+      <div className="contact-container">
         {!submitted ? (
           <form onSubmit={handleSubmit} className="contact-form">
             <input
@@ -50,9 +86,7 @@ function Contact() {
               onChange={handleChange}
               required
             ></textarea>
-            <button type="submit" className="btn primary">
-              Send Message
-            </button>
+            <button type="submit" className="btn primary">Send Message</button>
           </form>
         ) : (
           <div className="thank-you">
@@ -61,6 +95,31 @@ function Contact() {
           </div>
         )}
       </div>
+
+      {/* ===== FAQ SECTION ===== */}
+      <h2 className="section-heading">Frequently Asked Questions</h2>
+      <div className="faq-list">
+        <details>
+          <summary>How do I reset my password?</summary>
+          <p>Go to the login page → Forgot Password → Enter email.</p>
+        </details>
+
+        <details>
+          <summary>Why is my balance incorrect?</summary>
+          <p>Make sure all income/expenses are added correctly.</p>
+        </details>
+
+        <details>
+          <summary>How do I delete my account?</summary>
+          <p>Contact support with the subject: “Delete My Account”.</p>
+        </details>
+
+        <details>
+          <summary>Is MoneyMap free?</summary>
+          <p>Yes, MoneyMap is completely free for all users.</p>
+        </details>
+      </div>
+
     </div>
   );
 }

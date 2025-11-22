@@ -1,73 +1,4 @@
- feature/ai-assistant
-/* Login.css & Register.css */
-.login-page, .register-page, .reset-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: #f9fafb;
-}
-
-.login-container, .register-container, .reset-container {
-  background: white;
-  padding: 2rem 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  width: 350px;
-  text-align: center;
-}
-
-.login-container h2, .register-container h2, .reset-container h2 {
-  margin-bottom: 1.5rem;
-  color: #1f2937;
-}
-
-input {
-  width: 100%;
-  padding: 0.7rem;
-  margin-bottom: 1rem;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  outline: none;
-  font-size: 1rem;
-}
-
-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
-}
-
-button {
-  width: 100%;
-  padding: 0.7rem;
-  border: none;
-  border-radius: 8px;
-  background: #3b82f6;
-  color: white;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-button:hover {
-  background: #2563eb;
-}
-
-.login-links, .register-container p {
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  color: #6b7280;
-}
-
-.login-links a, .register-container a {
-  color: #3b82f6;
-  text-decoration: none;
-}
-
-.login-links a:hover, .register-container a:hover {
-  text-decoration: underline;
-}
- 
+/* Page background */
 .login-page {
   height: 100vh;
   background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
@@ -77,6 +8,7 @@ button:hover {
   font-family: "Poppins", sans-serif;
 }
 
+/* Login Card */
 .login-card {
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(15px);
@@ -105,6 +37,7 @@ button:hover {
   margin-bottom: 25px;
 }
 
+/* Inputs */
 .login-form input {
   width: 100%;
   padding: 12px 15px;
@@ -121,7 +54,7 @@ button:hover {
   box-shadow: 0 0 6px #00bfa5;
 }
 
-/* Main Login button */
+/* Login button */
 .primary-btn {
   width: 100%;
   padding: 12px;
@@ -141,7 +74,7 @@ button:hover {
   box-shadow: 0 4px 12px rgba(0, 150, 136, 0.4);
 }
 
-/* Google login button */
+/* Google login */
 .google-btn-container {
   width: 100%;
   margin-top: 15px;
@@ -165,19 +98,18 @@ button:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.google-btn img {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  margin-right: 8px;
-}
-
 .google-btn:hover {
   background: #f5f5f5;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+.google-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Links inside card */
 .login-links {
   margin-top: 20px;
   font-size: 0.9rem;
@@ -194,6 +126,25 @@ button:hover {
   text-decoration: underline;
 }
 
+/* ✅ BACK TO HOME AT BOTTOM */
+.back-home-link {
+  margin-top: 12px;
+}
+
+.back-home-link a {
+  font-size: 0.95rem;
+  color: #00796b;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.back-home-link a:hover {
+  color: #00594f;
+  text-decoration: underline;
+}
+
+/* Mobile responsive */
 @media (max-width: 480px) {
   .login-card {
     width: 90%;
