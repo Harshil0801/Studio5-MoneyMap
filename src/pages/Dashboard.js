@@ -53,6 +53,7 @@ const Dashboard = () => {
         {activeTab === "add" && <AddTransaction />}
       </div>
 
+
     </div>
   );
 };

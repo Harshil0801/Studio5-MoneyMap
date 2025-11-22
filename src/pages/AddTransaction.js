@@ -19,29 +19,45 @@ const AddTransaction = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const user = auth.currentUser;
-    if (!user) return alert('You must be logged in!');
 
-    const category = type === 'expense' ? detectCategory(description) : 'Income';
-    const colRef = collection(db, 'users', user.uid, type === 'expense' ? 'expenses' : 'income');
-    await addDoc(colRef, {
-      amount: parseFloat(amount),
-      description,
-      category,
-      date: new Date().toISOString(),
-    });
+    if (!user) {
+      alert("You must be logged in!");
+      return;
+    }
 
-    alert(`${type} added successfully!`);
-    setAmount('');
-    setDescription('');
+    const category =
+      type === "expense" ? detectCategory(description) : "Income";
+
+    try {
+      await addDoc(collection(db, "transactions"), {
+        uid: user.uid,
+        amount: parseFloat(amount),
+        description,
+        category,
+        type,
+        date: new Date().toLocaleDateString(), // readable date
+      });
+
+      alert(`${type} added successfully!`);
+
+      // Clear fields
+      setAmount("");
+      setDescription("");
+    } catch (error) {
+      console.error("Error adding transaction:", error);
+      alert("Failed to add transaction.");
+    }
   };
 
   return (
     <form className="add-form" onSubmit={handleSubmit}>
       <h3>Add Transaction</h3>
+
       <select value={type} onChange={(e) => setType(e.target.value)}>
         <option value="expense">Expense</option>
         <option value="income">Income</option>
       </select>
+
       <input
         type="number"
         placeholder="Amount"
@@ -49,6 +65,7 @@ const AddTransaction = () => {
         onChange={(e) => setAmount(e.target.value)}
         required
       />
+
       <input
         type="text"
         placeholder="Description"
@@ -56,6 +73,7 @@ const AddTransaction = () => {
         onChange={(e) => setDescription(e.target.value)}
         required
       />
+
       <button type="submit">Add</button>
     </form>
   );
