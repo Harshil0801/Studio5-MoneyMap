@@ -32,8 +32,15 @@ function Navbar() {
         {!user && <Link to="/login">Login</Link>}
         {!user && <Link to="/register">Register</Link>}
 
-        {/* Show Dashboard only when logged in */}
-        {user && <Link to="/dashboard">Dashboard</Link>}
+       {/* Show different dashboard link for admin */}
+{user && auth.currentUser?.email !== "moneymapadmin@gmail.com" && (
+  <Link to="/dashboard">Dashboard</Link>
+)}
+
+{user && auth.currentUser?.email === "moneymapadmin@gmail.com" && (
+  <Link to="/AdminDashboard">Dashboard</Link>
+)}
+
 
         <Link to="/contact">Contact</Link>
         <Link to="/terms">Terms & Conditions</Link>
