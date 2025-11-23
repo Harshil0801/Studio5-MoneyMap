@@ -11,7 +11,7 @@ function Navbar() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
-  // 🔹 Listen for auth state changes (detects login/logout)
+  //  Listen for auth state changes (detects login/logout)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -19,7 +19,7 @@ function Navbar() {
     return () => unsubscribe();
   }, []);
 
-  // 🔹 Handle logout
+  //  Handle logout
   const handleLogout = async () => {
     await signOut(auth);
     navigate("/");
@@ -36,6 +36,7 @@ function Navbar() {
   
         <Link to="/contact">Contact</Link>
         <Link to="/terms">Terms & Conditions</Link>
+         <Link to="/feedback">Feedback</Link>
  
         
       </div>

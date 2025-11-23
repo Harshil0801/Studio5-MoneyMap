@@ -28,7 +28,7 @@ function Feedback() {
 
       setSuccess(true);
       setMessage("");
-      setTimeout(() => setSuccess(false), 3000); // Hide message after 3s
+      setTimeout(() => setSuccess(false), 3000); 
     } catch (error) {
       console.error("Error submitting feedback:", error);
       alert("⚠️ Failed to submit feedback. Please try again.");
