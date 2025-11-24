@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
@@ -21,12 +25,16 @@ function Login() {
 
     // Firebase Auth login
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
-      //  Fetch user data from Firestore
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
+
       if (userSnap.exists()) {
         console.log("User data:", userSnap.data());
       }
@@ -46,11 +54,10 @@ function Login() {
     }
   };
 
-  //  Handle Google Login
+  // 🔹 Google Login
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
-      const user = result.user;
       alert("✅ Logged in successfully with Google!");
       navigate("/dashboard");
     } catch (error) {
@@ -62,7 +69,9 @@ function Login() {
     <div className="login-page">
       <div className="login-card">
         <h2 className="login-title">Welcome Back!</h2>
-        <p className="login-subtitle">Log in to manage your finances smarter 💼</p>
+        <p className="login-subtitle">
+          Log in to manage your finances smarter 💼
+        </p>
 
         <form onSubmit={handleLogin} className="login-form">
           <input
@@ -71,16 +80,16 @@ function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            autoComplete="username"
           />
+
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            autoComplete="current-password"
           />
+
           <button className="primary-btn" type="submit" disabled={loading}>
             {loading ? "Logging in..." : "Login"}
           </button>
@@ -102,6 +111,11 @@ function Login() {
           </p>
           <p>
             <Link to="/forgot-password">Forgot Password?</Link>
+          </p>
+
+          {/* ✅ BACK TO HOME AT BOTTOM */}
+          <p className="back-home-link">
+            <Link to="/">← Back to Home</Link>
           </p>
         </div>
       </div>

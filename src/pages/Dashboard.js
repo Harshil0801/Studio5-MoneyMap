@@ -3,28 +3,27 @@ import History from "./History";
 import Overview from "./Overview";
 import AddTransaction from "./AddTransaction";
 import "../styles/Dashboard.css";
-import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "../firebase";
-import "../styles/ForgotPassword.css";
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState("history");
-  const [email, setEmail] = useState("");
-
-  // Function for password reset
-  const handleReset = async (e) => {
-    e.preventDefault();
-    try {
-      await sendPasswordResetEmail(auth, email);
-      alert("Password reset link sent to your email!");
-    } catch (error) {
-      console.error("Error sending reset email:", error.message);
-      alert("Failed to send reset email. Please check your email address.");
-    }
-  };
+  const [activeTab, setActiveTab] = useState("overview");
 
   return (
     <div className="dashboard-container">
+
+      {/* Page Header */}
+      <div className="dashboard-header">
+        <h1>Dashboard</h1>
+        <p>Here is your financial summary</p>
+      </div>
+
+      {/* Summary Cards (from Overview Summary) */}
+      {activeTab === "overview" && (
+        <div className="dashboard-summary">
+          <Overview />
+        </div>
+      )}
+
+      {/* Tabs */}
       <div className="dashboard-tabs">
         <button
           className={activeTab === "history" ? "active" : ""}
@@ -48,27 +47,13 @@ const Dashboard = () => {
         </button>
       </div>
 
+      {/* Page Content */}
       <div className="dashboard-content">
         {activeTab === "history" && <History />}
-        {activeTab === "overview" && <Overview />}
         {activeTab === "add" && <AddTransaction />}
       </div>
 
-      {/* Reset Password Section */}
-      <div className="reset-page">
-        <div className="reset-container">
-          <h2>Reset Password</h2>
-          <form onSubmit={handleReset}>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <button type="submit">Send Reset Link</button>
-          </form>
-        </div>
-      </div>
+
     </div>
   );
 };

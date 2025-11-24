@@ -4,43 +4,53 @@ import "../styles/Terms.css";
 function Terms() {
   return (
     <div className="terms-page">
+
       <div className="terms-container">
         <h1>Terms & Conditions</h1>
-        <p>Welcome to <b>MoneyMap</b>. Please read these terms and conditions carefully before using our website.</p>
+        <p className="last-updated">Last Updated: November 2025</p>
 
-        <section>
-          <h2>1. Acceptance of Terms</h2>
-          <p>By accessing or using MoneyMap, you agree to comply with these terms and all applicable laws and regulations.</p>
-        </section>
+        <div className="divider"></div>
 
-        <section>
-          <h2>2. Use of Service</h2>
-          <p>MoneyMap is designed to help users manage personal finances, track expenses, and set budgeting goals. You agree not to misuse or disrupt the platform.</p>
-        </section>
+        <h2>📘 1. Acceptance of Terms</h2>
+        <p>
+          By accessing or using MoneyMap, you agree to comply with these terms and all
+          applicable laws and regulations.
+        </p>
 
-        <section>
-          <h2>3. Privacy</h2>
-          <p>We respect your privacy. Any personal information you provide will be handled according to our Privacy Policy.</p>
-        </section>
+        <h2>⚙️ 2. Use of Service</h2>
+        <p>
+          MoneyMap helps users manage finances, track expenses, and set budgeting goals.
+          You agree not to misuse or disrupt the platform.
+        </p>
 
-        <section>
-          <h2>4. Account Responsibilities</h2>
-          <p>You are responsible for maintaining the confidentiality of your login credentials and for all activities under your account.</p>
-        </section>
+        <h2>🔐 3. Privacy</h2>
+        <p>
+          Any personal information you provide will be handled according to our Privacy Policy.
+        </p>
 
-        <section>
-          <h2>5. Limitation of Liability</h2>
-          <p>MoneyMap is provided “as is”. We are not liable for any financial losses resulting from reliance on data or calculations within the app.</p>
-        </section>
+        <h2>👤 4. Account Responsibilities</h2>
+        <p>
+          You are responsible for keeping your login credentials secure and for all activities
+          under your account.
+        </p>
 
-        <section>
-          <h2>6. Updates to Terms</h2>
-          <p>We may update these terms periodically. Continued use of the platform implies acceptance of any revised terms.</p>
-        </section>
+        <h2>⚠️ 5. Limitation of Liability</h2>
+        <p>
+          MoneyMap is provided “as is.” We are not liable for financial losses due to data errors
+          or calculations within the app.
+        </p>
 
-        <footer className="terms-footer">
-          <p>Last updated: November 2025</p>
-        </footer>
+        <h2>🔄 6. Updates to Terms</h2>
+        <p>
+          We may update these terms periodically. Continued use of the platform means acceptance
+          of the revised terms.
+        </p>
+
+        <div className="support-box">
+          <p>Have questions about these terms?</p>
+          <a href="/contact" className="support-btn">Contact Support</a>
+        </div>
+
       </div>
     </div>
   );
