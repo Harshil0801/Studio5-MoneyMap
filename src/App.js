@@ -14,6 +14,8 @@ import Dashboard from "./pages/Dashboard";
 import Feedback from "./pages/Feedback";
 import Contact from "./pages/Contact";
 import Terms from "./pages/Terms";
+import UserSummary from "./pages/UserSummary";
+
 
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -50,6 +52,8 @@ function AppContent() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/feedback" element={<Feedback />} />
+        <Route path="/user-summary" element={<UserSummary />} />
+
         <Route
           path="/dashboard"
           element={

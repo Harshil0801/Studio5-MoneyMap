@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import History from "./History";
 import Overview from "./Overview";
 import AddTransaction from "./AddTransaction";
+import WeeklyReport from "./WeeklyReport";
+import GenerateQR from "./GenerateQR"; 
 import "../styles/Dashboard.css";
 import MonthlyBudget from "../components/MonthlyBudget";
 import { auth, db } from "../firebase";
@@ -103,12 +105,6 @@ const Dashboard = () => {
 
       {/* Tabs */}
       <div className="dashboard-tabs">
-        <button
-          className={activeTab === "history" ? "active" : ""}
-          onClick={() => setActiveTab("history")}
-        >
-          History
-        </button>
 
         <button
           className={activeTab === "overview" ? "active" : ""}
@@ -118,17 +114,41 @@ const Dashboard = () => {
         </button>
 
         <button
+          className={activeTab === "history" ? "active" : ""}
+          onClick={() => setActiveTab("history")}
+        >
+          History
+        </button>
+
+        <button
           className={activeTab === "add" ? "active" : ""}
           onClick={() => setActiveTab("add")}
         >
           Add Transaction
         </button>
+
+        <button
+          className={activeTab === "weekly" ? "active" : ""}
+          onClick={() => setActiveTab("weekly")}
+        >
+          Weekly Report
+        </button>
+
+        <button
+          className={activeTab === "qr" ? "active" : ""}
+          onClick={() => setActiveTab("qr")}
+        >
+          QR Generator
+        </button>
+
       </div>
 
-      {/* Page Content */}
       <div className="dashboard-content">
+        {activeTab === "overview" && <Overview />}
         {activeTab === "history" && <History />}
         {activeTab === "add" && <AddTransaction />}
+        {activeTab === "weekly" && <WeeklyReport />}
+        {activeTab === "qr" && <GenerateQR />}
       </div>
 
       {/* Monthly Budget */}

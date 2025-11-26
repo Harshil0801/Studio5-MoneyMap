@@ -9,6 +9,8 @@ import { doc, getDoc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 
+// State variables for email, password, and loading status
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,11 +18,12 @@ function Login() {
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
 
-  // 🔹 Handle Email/Password Login
+  // Handle login using Email & Password
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
+    // Firebase Auth login
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
