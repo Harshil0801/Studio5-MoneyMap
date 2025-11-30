@@ -1,4 +1,4 @@
-// src/pages/Home.jsx
+
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AOS from "aos";
@@ -146,6 +146,7 @@ function Home() {
             <Link to="/about">About</Link>
             <Link to="/contact">Contact</Link>
             <Link to="/privacy">Privacy Policy</Link>
+            <Link to="/feedback">Feedback</Link>
           </div>
           <p>© {new Date().getFullYear()} MoneyMap — Smart Budgeting Made Simple</p>
         </footer>
@@ -217,6 +218,7 @@ function Home() {
           <Link to="/about">About</Link>
           <Link to="/contact">Contact</Link>
           <Link to="/privacy">Privacy Policy</Link>
+          <Link to="/feedback">Feedback</Link>
         </div>
         <p>© {new Date().getFullYear()} MoneyMap — Smart Budgeting Made Simple</p>
       </footer>
