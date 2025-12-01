@@ -1,22 +1,19 @@
 
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { auth, db } from "../firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import { collection, getDocs } from "firebase/firestore";
 import "../styles/Home.css";
 
 function Home() {
   const [user, setUser] = useState(null);
-  const [summary, setSummary] = useState({
-    income: 0,
-    expenses: 0,
-    balance: 0,
+  const [adminStats, setAdminStats] = useState({
+    totalUsers: 0,
+    totalFeedback: 0,
   });
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     AOS.init({ duration: 1000, once: true });
@@ -25,74 +22,57 @@ function Home() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-      if (currentUser) {
-        await loadSummary(currentUser.uid);
+
+      if (currentUser?.email === "moneymapadmin@gmail.com") {
+        await loadAdminStats();
       }
     });
 
     return () => unsubscribe();
   }, []);
 
-  // ======================== FIRESTORE SUMMARY LOGIC ========================
-  const loadSummary = async (uid) => {
-    let incomeTotal = 0;
-    let expenseTotal = 0;
-
+  // Load admin stats
+  const loadAdminStats = async () => {
     try {
-      const q = query(collection(db, "transactions"), where("uid", "==", uid));
-      const snap = await getDocs(q);
+      const usersSnap = await getDocs(collection(db, "users"));
+      const feedbackSnap = await getDocs(collection(db, "feedback"));
 
-      snap.forEach((doc) => {
-        const data = doc.data();
-        const amount = parseFloat(data.amount || 0);
-
-        if (data.type === "income") incomeTotal += amount;
-        if (data.type === "expense") expenseTotal += amount;
+      setAdminStats({
+        totalUsers: usersSnap.size,
+        totalFeedback: feedbackSnap.size,
       });
-
-      const balance = incomeTotal - expenseTotal;
-
-      setSummary({
-        income: incomeTotal,
-        expenses: expenseTotal,
-        balance,
-      });
-    } catch (error) {
-      console.error("Error loading summary:", error);
+    } catch (err) {
+      console.log("Admin stats error:", err);
     }
   };
-  // =====================================================================
 
-  // ============ VIEW FOR LOGGED-IN USERS (with guest content below) ============
-  if (user) {
-    return (
-      <div className="home">
+  return (
+    <div className="home">
 
-        {/* DASHBOARD SUMMARY */}
+      {/* ===================== ADMIN OVERVIEW (TOP) ===================== */}
+      {user?.email === "moneymapadmin@gmail.com" && (
         <section className="dashboard-intro" data-aos="fade-up">
           <h1>
-            Welcome back 👋
+            Welcome back, <span>Admin 👑</span>
           </h1>
+          <p>Here’s your system overview:</p>
 
-          <div className="summary-cards">
-            <div className="summary-card income">
-              <h3>Total Income</h3>
-              <p>${summary.income.toFixed(2)}</p>
+          <div className="summary-cards admin-cards">
+            <div className="summary-card admin-card">
+              <h3>Total Users</h3>
+              <p>{adminStats.totalUsers}</p>
             </div>
-            <div className="summary-card expenses">
-              <h3>Total Expenses</h3>
-              <p>${summary.expenses.toFixed(2)}</p>
-            </div>
-            <div className="summary-card balance">
-              <h3>Remaining Balance</h3>
-              <p>${summary.balance.toFixed(2)}</p>
+
+            <div className="summary-card admin-card">
+              <h3>Total Feedback</h3>
+              <p>{adminStats.totalFeedback}</p>
             </div>
           </div>
         </section>
+      )}
 
-        {/* ================= GUEST HOMEPAGE CONTENT ================= */}
-
-        {/* HERO SECTION */}
+      {/* ===================== HERO (SHOW ONLY FOR GUESTS) ===================== */}
+      {!user && (
         <section className="hero">
           <div className="hero-content" data-aos="fade-up">
             <h1>
@@ -100,38 +80,20 @@ function Home() {
               <span className="brand">MoneyMap 💸</span>
             </h1>
             <p>
-              Track your income and expenses, set goals, and manage your money with ease.
+              Track your income and expenses, set goals, and manage your money
+              with ease.
             </p>
-          </div>
-        </section>
 
-        {/* FEATURES SECTION */}
-        <section className="features" id="features">
-          <h2 data-aos="fade-up">
-            Why People Love <span>MoneyMap</span>
-          </h2>
-
-          <div className="feature-grid">
-            <div className="feature-card" data-aos="fade-up" data-aos-delay="100">
-              <i className="fas fa-wallet"></i>
-              <h3>Track Spending</h3>
-              <p>Automatically categorize and visualize your daily expenses.</p>
-            </div>
-
-            <div className="feature-card" data-aos="fade-up" data-aos-delay="200">
-              <i className="fas fa-chart-line"></i>
-              <h3>Analyze Trends</h3>
-              <p>Interactive charts give insights into where your money goes.</p>
-            </div>
-
-            <div className="feature-card" data-aos="fade-up" data-aos-delay="300">
-              <i className="fas fa-bullseye"></i>
-              <h3>Set Goals</h3>
-              <p>Save smarter with clear financial goals and progress tracking.</p>
+            <div className="hero-buttons">
+              <Link to="/register" className="btn primary">Get Started</Link>
+              <Link to="/login" className="btn secondary">Login</Link>
             </div>
           </div>
         </section>
+      )}
 
+
+      {/* ===================== FEATURES ===================== */}
         {/* CTA SECTION */}
         <section className="cta" data-aos="zoom-in">
           <h2>Plan your financial future smarter</h2>
@@ -204,7 +166,7 @@ function Home() {
         </div>
       </section>
 
-      {/* CTA SECTION */}
+      {/* ===================== CTA ===================== */}
       <section className="cta" data-aos="zoom-in">
         <h2>Start your journey to smarter finances today</h2>
         <Link to="/register" className="btn primary cta-btn">
@@ -212,7 +174,7 @@ function Home() {
         </Link>
       </section>
 
-      {/* FOOTER */}
+      {/* ===================== FOOTER ===================== */}
       <footer className="footer">
         <div className="footer-links">
           <Link to="/about">About</Link>
