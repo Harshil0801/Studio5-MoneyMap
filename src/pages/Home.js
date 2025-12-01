@@ -1,4 +1,4 @@
-// src/pages/Home.jsx
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AOS from "aos";
@@ -92,7 +92,54 @@ function Home() {
         </section>
       )}
 
+
       {/* ===================== FEATURES ===================== */}
+        {/* CTA SECTION */}
+        <section className="cta" data-aos="zoom-in">
+          <h2>Plan your financial future smarter</h2>
+          <Link to="/dashboard" className="btn primary cta-btn">
+            Open Dashboard
+          </Link>
+        </section>
+
+        {/* FOOTER */}
+        <footer className="footer">
+          <div className="footer-links">
+            <Link to="/about">About</Link>
+            <Link to="/contact">Contact</Link>
+            <Link to="/privacy">Privacy Policy</Link>
+            <Link to="/feedback">Feedback</Link>
+          </div>
+          <p>© {new Date().getFullYear()} MoneyMap — Smart Budgeting Made Simple</p>
+        </footer>
+      </div>
+    );
+  }
+
+  // ============ VIEW FOR GUEST USERS ============
+  return (
+    <div className="home">
+      <section className="hero">
+        <div className="hero-content" data-aos="fade-up">
+          <h1>
+            Simplify Your <span>Finances</span> with{" "}
+            <span className="brand">MoneyMap 💸</span>
+          </h1>
+          <p>
+            Track your income and expenses, set goals, and manage your money with ease.
+          </p>
+          <div className="hero-buttons">
+            <Link to="/register" className="btn primary">
+              Get Started
+            </Link>
+            <Link to="/login" className="btn secondary">
+              Login
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* FEATURES SECTION */}
       <section className="features" id="features">
         <h2 data-aos="fade-up">
           Why People Love <span>MoneyMap</span>
@@ -133,6 +180,7 @@ function Home() {
           <Link to="/about">About</Link>
           <Link to="/contact">Contact</Link>
           <Link to="/privacy">Privacy Policy</Link>
+          <Link to="/feedback">Feedback</Link>
         </div>
         <p>© {new Date().getFullYear()} MoneyMap — Smart Budgeting Made Simple</p>
       </footer>

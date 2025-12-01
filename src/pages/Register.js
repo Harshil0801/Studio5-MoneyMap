@@ -20,6 +20,7 @@ function Register() {
     confirmPassword: "",
   });
 
+  // Loading state to prevent multiple submissions
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
@@ -76,7 +77,7 @@ function Register() {
     }
   };
 
-  // 🔹 Google Sign-Up
+  //  Handles Google Sign-Up
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, provider);

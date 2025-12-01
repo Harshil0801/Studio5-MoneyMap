@@ -4,6 +4,7 @@ import { auth } from "../firebase";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/ForgotPassword.css";
 
+// State variables
 function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -11,16 +12,19 @@ function ForgotPassword() {
   const [emailSent, setEmailSent] = useState(false);
   const navigate = useNavigate();
 
+// Handles password reset request
   const handleReset = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
 
     try {
+      // Send reset link to user's email
       await sendPasswordResetEmail(auth, email);
+      // Display success message 
       setMessage("✅ Password reset email sent! Please check your inbox.");
       setEmailSent(true);
-      setEmail(""); // Clear the input
+      setEmail(""); // Clear the input email after sending
     } catch (error) {
       console.error(error);
       switch (error.code) {
