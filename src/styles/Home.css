@@ -12,9 +12,12 @@
 .home section {
   padding: 60px 20px;
   text-align: center;
+  box-sizing: border-box;
 }
 
-/* HERO SECTION */
+/* =======================
+        HERO SECTION
+========================== */
 .hero {
   background: linear-gradient(135deg, #00bfa5, #00796b);
   color: white;
@@ -53,7 +56,9 @@
   border: solid 2px #004d40;
 }
 
-/* FEATURES SECTION */
+/* =======================
+       FEATURES SECTION
+========================== */
 .features {
   background: #f4fdfc;
 }
@@ -86,29 +91,34 @@
   margin-bottom: 10px;
 }
 
-/* CTA SECTION */
+/* =======================
+         CTA SECTION
+========================== */
 .cta {
-  background: #009688;
+  background: #beb9b9;
   color: white;
   padding: 70px 20px;
-  border-radius: 0;
 }
 
 .cta-btn {
   background: white !important;
-  color: #009688 !important;
+  color: #000000 !important;
 }
 
-/* FOOTER */
+/* =======================
+         FOOTER
+========================== */
 .footer {
   background: #004d40;
   padding: 25px 15px;
   color: white;
+  text-align: center;
 }
 
 .footer a {
   margin: 0 10px;
-  color: #80cbc4;
+  color: #000000;
+  text-decoration: none;
 }
 
 .footer-links {
@@ -116,20 +126,16 @@
 }
 
 /* =======================
-   ADMIN HOME PAGE SECTION
+    ADMIN HOME PAGE SECTION
 ========================== */
 
-.admin-home {
-  padding-top: 60px;
-}
-
-.admin-home .dashboard-intro h1 {
+.dashboard-intro h1 {
   font-size: 34px;
   font-weight: 700;
   color: #004d40;
 }
 
-.admin-home p {
+.dashboard-intro p {
   margin-top: 10px;
   font-size: 18px;
   color: #333;
@@ -139,7 +145,8 @@
   margin-top: 35px;
   display: flex;
   justify-content: center;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 25px;
 }
 
 .admin-card {
@@ -148,7 +155,7 @@
   padding: 25px;
   width: 260px;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   text-align: center;
 }
 
@@ -162,4 +169,124 @@
   font-weight: 700;
   color: #d48806;
   margin-top: 10px;
+}
+
+/* =======================
+  LOGGED-IN USER DASHBOARD
+========================== */
+.user-dashboard {
+  padding: 60px 20px;
+}
+
+.user-dashboard h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #004d40;
+  margin-bottom: 5px;
+}
+
+.user-dashboard p {
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.user-cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 25px;
+}
+
+.summary-card {
+  background: white;
+  width: 260px;
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: 0.2s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Income Card */
+.income-card {
+  border-left: 6px solid #2e7d32;
+}
+
+.income-card h3 {
+  color: #1b5e20;
+}
+
+.income-card p {
+  color: #1b5e20;
+}
+
+/* Expense Card */
+.expense-card {
+  border-left: 6px solid #c62828;
+}
+
+.expense-card h3 {
+  color: #8e0000;
+}
+
+.expense-card p {
+  color: #8e0000;
+}
+
+/* Balance Card */
+.balance-card {
+  border-left: 6px solid #0277bd;
+}
+
+.balance-card h3 {
+  color: #01579b;
+}
+
+.balance-card p {
+  color: #01579b;
+}
+
+.summary-card h3 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.summary-card p {
+  font-size: 28px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.open-dash-btn {
+  display: inline-block;
+  margin-top: 30px;
+  padding: 12px 25px;
+  font-size: 16px;
+  border-radius: 8px;
+  background-color: #004d40;
+  color: white !important;
+}
+
+/* =======================
+     MOBILE RESPONSIVE
+========================== */
+
+@media (max-width: 768px) {
+
+  .hero-content h1 {
+    font-size: 32px;
+  }
+
+  .summary-card {
+    width: 90%;
+  }
+
+  .admin-card,
+  .home-card {
+    width: 90%;
+  }
 }
