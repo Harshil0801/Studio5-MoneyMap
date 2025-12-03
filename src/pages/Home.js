@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AOS from "aos";
@@ -31,7 +30,6 @@ function Home() {
     return () => unsubscribe();
   }, []);
 
-  // Load admin stats
   const loadAdminStats = async () => {
     try {
       const usersSnap = await getDocs(collection(db, "users"));
@@ -49,7 +47,7 @@ function Home() {
   return (
     <div className="home">
 
-      {/* ===================== ADMIN OVERVIEW (TOP) ===================== */}
+      {/* ================= ADMIN VIEW ================= */}
       {user?.email === "moneymapadmin@gmail.com" && (
         <section className="dashboard-intro" data-aos="fade-up">
           <h1>
@@ -71,7 +69,7 @@ function Home() {
         </section>
       )}
 
-      {/* ===================== HERO (SHOW ONLY FOR GUESTS) ===================== */}
+      {/* ================= GUEST HERO (ONLY IF NOT LOGGED IN) ================= */}
       {!user && (
         <section className="hero">
           <div className="hero-content" data-aos="fade-up">
@@ -92,89 +90,44 @@ function Home() {
         </section>
       )}
 
+      {/* ================= FEATURES (SHOW TO EVERYONE) ================= */}
+      {!user && (
+        <section className="features" id="features">
+          <h2 data-aos="fade-up">
+            Why People Love <span>MoneyMap</span>
+          </h2>
 
-      {/* ===================== FEATURES ===================== */}
-        {/* CTA SECTION */}
-        <section className="cta" data-aos="zoom-in">
-          <h2>Plan your financial future smarter</h2>
-          <Link to="/dashboard" className="btn primary cta-btn">
-            Open Dashboard
-          </Link>
+          <div className="feature-grid">
+            <div className="feature-card" data-aos="fade-up" data-aos-delay="100">
+              <i className="fas fa-wallet"></i>
+              <h3>Track Spending</h3>
+              <p>Automatically categorize and visualize your daily expenses.</p>
+            </div>
+
+            <div className="feature-card" data-aos="fade-up" data-aos-delay="200">
+              <i className="fas fa-chart-line"></i>
+              <h3>Analyze Trends</h3>
+              <p>Interactive charts show where your money goes.</p>
+            </div>
+
+            <div className="feature-card" data-aos="fade-up" data-aos-delay="300">
+              <i className="fas fa-bullseye"></i>
+              <h3>Set Goals</h3>
+              <p>Save smarter with clear financial goals.</p>
+            </div>
+          </div>
         </section>
+      )}
 
-        {/* FOOTER */}
-        <footer className="footer">
-          <div className="footer-links">
-            <Link to="/about">About</Link>
-            <Link to="/contact">Contact</Link>
-            <Link to="/privacy">Privacy Policy</Link>
-            <Link to="/feedback">Feedback</Link>
-          </div>
-          <p>© {new Date().getFullYear()} MoneyMap — Smart Budgeting Made Simple</p>
-        </footer>
-      </div>
-    );
-  }
-
-  // ============ VIEW FOR GUEST USERS ============
-  return (
-    <div className="home">
-      <section className="hero">
-        <div className="hero-content" data-aos="fade-up">
-          <h1>
-            Simplify Your <span>Finances</span> with{" "}
-            <span className="brand">MoneyMap 💸</span>
-          </h1>
-          <p>
-            Track your income and expenses, set goals, and manage your money with ease.
-          </p>
-          <div className="hero-buttons">
-            <Link to="/register" className="btn primary">
-              Get Started
-            </Link>
-            <Link to="/login" className="btn secondary">
-              Login
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* FEATURES SECTION */}
-      <section className="features" id="features">
-        <h2 data-aos="fade-up">
-          Why People Love <span>MoneyMap</span>
-        </h2>
-
-        <div className="feature-grid">
-          <div className="feature-card" data-aos="fade-up" data-aos-delay="100">
-            <i className="fas fa-wallet"></i>
-            <h3>Track Spending</h3>
-            <p>Automatically categorize and visualize your daily expenses.</p>
-          </div>
-
-          <div className="feature-card" data-aos="fade-up" data-aos-delay="200">
-            <i className="fas fa-chart-line"></i>
-            <h3>Analyze Trends</h3>
-            <p>Interactive charts give insights into where your money goes.</p>
-          </div>
-
-          <div className="feature-card" data-aos="fade-up" data-aos-delay="300">
-            <i className="fas fa-bullseye"></i>
-            <h3>Set Goals</h3>
-            <p>Save smarter with clear financial goals and progress tracking.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ===================== CTA ===================== */}
+      {/* ================= CTA SECTION ================= */}
       <section className="cta" data-aos="zoom-in">
-        <h2>Start your journey to smarter finances today</h2>
-        <Link to="/register" className="btn primary cta-btn">
-          Join MoneyMap Now
+        <h2>Plan your financial future smarter</h2>
+        <Link to={user ? "/dashboard" : "/register"} className="btn primary cta-btn">
+          {user ? "Open Dashboard" : "Join MoneyMap Now"}
         </Link>
       </section>
 
-      {/* ===================== FOOTER ===================== */}
+      {/* ================= FOOTER ================= */}
       <footer className="footer">
         <div className="footer-links">
           <Link to="/about">About</Link>
