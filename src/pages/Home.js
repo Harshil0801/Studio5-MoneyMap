@@ -30,6 +30,7 @@ function Home() {
     return () => unsubscribe();
   }, []);
 
+  // Load admin stats
   const loadAdminStats = async () => {
     try {
       const usersSnap = await getDocs(collection(db, "users"));
@@ -46,8 +47,8 @@ function Home() {
 
   return (
     <div className="home">
-
-      {/* ================= ADMIN VIEW ================= */}
+      
+      {/* ===================== ADMIN OVERVIEW ===================== */}
       {user?.email === "moneymapadmin@gmail.com" && (
         <section className="dashboard-intro" data-aos="fade-up">
           <h1>
@@ -69,7 +70,7 @@ function Home() {
         </section>
       )}
 
-      {/* ================= GUEST HERO (ONLY IF NOT LOGGED IN) ================= */}
+      {/* ===================== HERO (GUEST ONLY) ===================== */}
       {!user && (
         <section className="hero">
           <div className="hero-content" data-aos="fade-up">
@@ -90,7 +91,7 @@ function Home() {
         </section>
       )}
 
-      {/* ================= FEATURES (SHOW TO EVERYONE) ================= */}
+      {/* ===================== FEATURES ===================== */}
       {!user && (
         <section className="features" id="features">
           <h2 data-aos="fade-up">
@@ -113,21 +114,27 @@ function Home() {
             <div className="feature-card" data-aos="fade-up" data-aos-delay="300">
               <i className="fas fa-bullseye"></i>
               <h3>Set Goals</h3>
-              <p>Save smarter with clear financial goals.</p>
+              <p>Save smarter with clear goals and progress tracking.</p>
             </div>
           </div>
         </section>
       )}
 
-      {/* ================= CTA SECTION ================= */}
+      {/* ===================== CTA ===================== */}
       <section className="cta" data-aos="zoom-in">
-        <h2>Plan your financial future smarter</h2>
-        <Link to={user ? "/dashboard" : "/register"} className="btn primary cta-btn">
+        <h2>
+          {user ? "Plan your financial future smarter" : "Start your journey to smarter finances today"}
+        </h2>
+
+        <Link
+          to={user ? "/dashboard" : "/register"}
+          className="btn primary cta-btn"
+        >
           {user ? "Open Dashboard" : "Join MoneyMap Now"}
         </Link>
       </section>
 
-      {/* ================= FOOTER ================= */}
+      {/* ===================== FOOTER ===================== */}
       <footer className="footer">
         <div className="footer-links">
           <Link to="/about">About</Link>
