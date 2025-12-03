@@ -1,0 +1,47 @@
+/* App.css */
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background-color: #f4faf9;
+  color: #333;
+}
+
+.navbar {
+  background-color: #008080;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.nav-logo {
+  font-weight: 600;
+  font-size: 1.4rem;
+}
+
+.nav-links a {
+  margin-right: 15px;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+.logout-btn {
+  background-color: #ffffff33;
+  border: none;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #ffffff55;
+}
