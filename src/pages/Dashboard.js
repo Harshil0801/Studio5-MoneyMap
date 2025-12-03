@@ -4,8 +4,10 @@ import Overview from "./Overview";
 import AddTransaction from "./AddTransaction";
 import WeeklyReport from "./WeeklyReport";
 import GenerateQR from "./GenerateQR"; 
-import "../styles/Dashboard.css";
 import MonthlyBudget from "../components/MonthlyBudget";
+
+import "../styles/Dashboard.css";
+
 import { auth, db } from "../firebase";
 import { collection, getDoc, getDocs, doc } from "firebase/firestore";
 
@@ -13,11 +15,14 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [transactions, setTransactions] = useState([]);
 
-  // 🔥 Popup states
+  // Popup
   const [showBudgetPopup, setShowBudgetPopup] = useState(false);
   const [remainingBudget, setRemainingBudget] = useState(null);
+  const [popupShownOnce, setPopupShownOnce] = useState(false); // FIX
 
-  // Fetch all transactions from TOP-LEVEL collection
+  // ===========================
+  // FETCH TRANSACTIONS
+  // ===========================
   useEffect(() => {
     const fetchTransactions = async () => {
       const user = auth.currentUser;
@@ -27,23 +32,25 @@ const Dashboard = () => {
       const snap = await getDocs(ref);
 
       const list = snap.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .map((d) => ({ id: d.id, ...d.data() }))
         .filter((t) => t.uid === user.uid);
 
-      console.log("Fetched transactions:", list);
       setTransactions(list);
     };
 
     fetchTransactions();
   }, []);
 
-  // 🔥 Calculate remaining budget for popup
+  // ===========================
+  // CALCULATE REMAINING BUDGET
+  // ===========================
   useEffect(() => {
     const calculateRemaining = async () => {
+      if (popupShownOnce) return; // show ONCE ONLY
+
       const user = auth.currentUser;
       if (!user) return;
 
-      // Fetch saved budget
       const userRef = doc(db, "users", user.uid);
       const snap = await getDoc(userRef);
 
@@ -52,97 +59,76 @@ const Dashboard = () => {
       const savedBudget = snap.data().monthlyBudget;
       if (!savedBudget) return;
 
-      // Calculate expenses for current month
+      // Get month + year
       const now = new Date();
+      const month = now.getMonth();
+      const year = now.getFullYear();
+
+      // Filter expenses for this month
       const monthlyExpenses = transactions
         .filter((t) => t.type === "expense")
         .filter((t) => {
-          const date = new Date(t.date);
-          return (
-            date.getMonth() === now.getMonth() &&
-            date.getFullYear() === now.getFullYear()
-          );
+          let d = t.date;
+
+          // Firestore Timestamp → convert
+          if (d && typeof d.toDate === "function") {
+            d = d.toDate();
+          } else {
+            d = new Date(d);
+          }
+
+          return d.getMonth() === month && d.getFullYear() === year;
         })
         .reduce((sum, t) => {
           let amt = t.amount;
 
-          if (typeof amt === "number") amt = amt.toString();
+          if (typeof amt !== "string") amt = String(amt);
 
-          amt = amt
-            .replace("$", "")
-            .replace("-", "")
-            .replace("+", "");
-
-          return sum + Number(amt);
+          amt = parseFloat(amt.replace(/[^0-9.]/g, "")); // safer clean
+          return sum + (isNaN(amt) ? 0 : amt);
         }, 0);
 
       const remaining = savedBudget - monthlyExpenses;
 
       setRemainingBudget(remaining);
-      setShowBudgetPopup(true); // Show popup 🌟
+      setShowBudgetPopup(true);
+      setPopupShownOnce(true); // Prevent repeat popup
     };
 
     if (transactions.length > 0) {
       calculateRemaining();
     }
-  }, [transactions]);
+  }, [transactions, popupShownOnce]);
 
   return (
     <div className="dashboard-container">
 
-      {/* Header */}
+      {/* HEADER */}
       <div className="dashboard-header">
         <h1>Dashboard</h1>
         <p>Here is your financial summary</p>
       </div>
 
-      {/* Summary for Overview */}
-      {activeTab === "overview" && (
-        <div className="dashboard-summary">
-          <Overview />
-        </div>
-      )}
-
-      {/* Tabs */}
+      {/* TABS */}
       <div className="dashboard-tabs">
-
-        <button
-          className={activeTab === "overview" ? "active" : ""}
-          onClick={() => setActiveTab("overview")}
-        >
+        <button className={activeTab === "overview" ? "active" : ""} onClick={() => setActiveTab("overview")}>
           Overview
         </button>
-
-        <button
-          className={activeTab === "history" ? "active" : ""}
-          onClick={() => setActiveTab("history")}
-        >
+        <button className={activeTab === "history" ? "active" : ""} onClick={() => setActiveTab("history")}>
           History
         </button>
-
-        <button
-          className={activeTab === "add" ? "active" : ""}
-          onClick={() => setActiveTab("add")}
-        >
+        <button className={activeTab === "add" ? "active" : ""} onClick={() => setActiveTab("add")}>
           Add Transaction
         </button>
-
-        <button
-          className={activeTab === "weekly" ? "active" : ""}
-          onClick={() => setActiveTab("weekly")}
-        >
+        <button className={activeTab === "weekly" ? "active" : ""} onClick={() => setActiveTab("weekly")}>
           Weekly Report
         </button>
-
-        <button
-          className={activeTab === "qr" ? "active" : ""}
-          onClick={() => setActiveTab("qr")}
-        >
+        <button className={activeTab === "qr" ? "active" : ""} onClick={() => setActiveTab("qr")}>
           QR Generator
         </button>
-
       </div>
 
+      {/* CONTENT */}
       <div className="dashboard-content">
         {activeTab === "overview" && <Overview />}
         {activeTab === "history" && <History />}
@@ -151,12 +137,12 @@ const Dashboard = () => {
         {activeTab === "qr" && <GenerateQR />}
       </div>
 
-      {/* Monthly Budget */}
+      {/* MONTHLY BUDGET */}
       {activeTab === "overview" && (
         <MonthlyBudget allTransactions={transactions} />
       )}
 
-      {/* 🔥 POPUP UI */}
+      {/* POPUP */}
       {showBudgetPopup && remainingBudget !== null && (
         <div className="budget-popup">
           <div className="popup-content">
@@ -166,10 +152,7 @@ const Dashboard = () => {
               ${remainingBudget}
             </h2>
 
-            <button
-              className="btn btn-primary mt-3"
-              onClick={() => setShowBudgetPopup(false)}
-            >
+            <button className="btn btn-primary mt-3" onClick={() => setShowBudgetPopup(false)}>
               OK
             </button>
           </div>
