@@ -18,6 +18,8 @@ import Terms from "./pages/Terms";
 import UserSummary from "./pages/UserSummary";
 import AboutUs from "./pages/AboutUs";
 
+// ✅ ADD THIS
+import TransactionPdf from "./pages/TransactionPdf";
 
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -82,8 +84,10 @@ function AppContent() {
         <Route path="/feedback" element={<Feedback />} />
 
         <Route path="/user-summary" element={<UserSummary />} />
-        <Route path="/about" element={<AboutUs />} />
+        {/* ✅ ADD THIS ROUTE */}
+        <Route path="/transaction-pdf" element={<TransactionPdf />} />
 
+        <Route path="/about" element={<AboutUs />} />
 
         <Route
           path="/dashboard"
