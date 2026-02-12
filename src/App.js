@@ -85,6 +85,8 @@ function AppContent() {
 
         <Route path="/user-summary" element={<UserSummary />} />
         <Route path="/about" element={<AboutUs />} />
+        <Route path="/update-profile" element={<UpdateProfile />} />
+
         
 
 
@@ -96,16 +98,6 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
-
-        <Route
-          path="/update-profile"
-           element={
-          <ProtectedRoute>
-             <UpdateProfile />
-            </ProtectedRoute>
-          }
-         />
-
 
         {/* Admin Dashboard */}
         <Route

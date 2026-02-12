@@ -6,6 +6,9 @@ import WeeklyReport from "./WeeklyReport";
 import GenerateQR from "./GenerateQR"; 
 import MonthlyBudget from "../components/MonthlyBudget";
 
+import { Link } from "react-router-dom";
+
+
 import "../styles/Dashboard.css";
 
 import { auth, db } from "../firebase";
@@ -102,18 +105,24 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
+{/* HEADER */}
+<div className="dashboard-header">
+  <div>
+    <h1>Dashboard</h1>
+    <p>Here is your financial summary</p>
+  </div>
 
-      {/* HEADER */}
-      <div className="dashboard-header">
-        <h1>Dashboard</h1>
-        <p>Here is your financial summary</p>
-      </div>
+  <Link to="/update-profile" className="profile-link">
+    Account Settings
+  </Link>
+</div>
 
       {/* TABS */}
       <div className="dashboard-tabs">
         <button className={activeTab === "overview" ? "active" : ""} onClick={() => setActiveTab("overview")}>
           Overview
         </button>
+    
         <button className={activeTab === "history" ? "active" : ""} onClick={() => setActiveTab("history")}>
           History
         </button>
