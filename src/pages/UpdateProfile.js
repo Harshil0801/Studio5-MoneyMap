@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { updateEmail } from "firebase/auth";
-
+import "../styles/UpdateProfile.css";
 
 function UpdateProfile() {
   const [formData, setFormData] = useState({

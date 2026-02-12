@@ -17,6 +17,8 @@ import Contact from "./pages/Contact";
 import Terms from "./pages/Terms";
 import UserSummary from "./pages/UserSummary";
 import AboutUs from "./pages/AboutUs";
+import UpdateProfile from "./pages/UpdateProfile";
+
 
 
 import Navbar from "./components/Navbar";
@@ -83,6 +85,7 @@ function AppContent() {
 
         <Route path="/user-summary" element={<UserSummary />} />
         <Route path="/about" element={<AboutUs />} />
+        
 
 
         <Route
@@ -93,6 +96,16 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/update-profile"
+           element={
+          <ProtectedRoute>
+             <UpdateProfile />
+            </ProtectedRoute>
+          }
+         />
+
 
         {/* Admin Dashboard */}
         <Route
