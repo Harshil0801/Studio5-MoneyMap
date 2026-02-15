@@ -17,6 +17,8 @@ import Contact from "./pages/Contact";
 import Terms from "./pages/Terms";
 import UserSummary from "./pages/UserSummary";
 import AboutUs from "./pages/AboutUs";
+import UpdateProfile from "./pages/UpdateProfile";
+
 
 // ✅ ADD THIS
 import TransactionPdf from "./pages/TransactionPdf";
@@ -84,8 +86,15 @@ function AppContent() {
         <Route path="/feedback" element={<Feedback />} />
 
         <Route path="/user-summary" element={<UserSummary />} />
+  feature/qr-transaction-pdf
         {/* ✅ ADD THIS ROUTE */}
         <Route path="/transaction-pdf" element={<TransactionPdf />} />
+ 
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/update-profile" element={<UpdateProfile />} />
+
+        
+  main
 
         <Route path="/about" element={<AboutUs />} />
 
