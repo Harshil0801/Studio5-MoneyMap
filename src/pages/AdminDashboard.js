@@ -5,7 +5,8 @@ import {
   getDocs,
   deleteDoc,
   doc,
-  addDoc
+  addDoc,
+  updateDoc
 } from "firebase/firestore";
 import "../styles/AdminDashboard.css";
 
@@ -13,9 +14,11 @@ function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
 
-  const [newUser, setNewUser] = useState({
+  const [search, setSearch] = useState("");
+  const [editingUserId, setEditingUserId] = useState(null);
+
+  const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
@@ -24,7 +27,7 @@ function AdminDashboard() {
     role: "user"
   });
 
-  //  Load Users
+  // Load users
   useEffect(() => {
     loadUsers();
   }, []);
@@ -40,37 +43,54 @@ function AdminDashboard() {
     setLoading(false);
   };
 
-  // Search Users
-  const handleSearch = (value) => {
-    setSearch(value);
+  // Single search (name OR email)
+  useEffect(() => {
+    if (!search) {
+      setFilteredUsers(users);
+      return;
+    }
 
     const filtered = users.filter(
       (u) =>
-        u.firstName?.toLowerCase().includes(value.toLowerCase()) ||
-        u.lastName?.toLowerCase().includes(value.toLowerCase()) ||
-        u.email?.toLowerCase().includes(value.toLowerCase())
+        `${u.firstName} ${u.lastName}`
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+        u.email?.toLowerCase().includes(search.toLowerCase())
     );
 
     setFilteredUsers(filtered);
-  };
+  }, [search, users]);
 
-  // Add User
-  const handleAddUser = async (e) => {
+  // Add or Update user
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!newUser.firstName || !newUser.email) {
+    if (!formData.firstName || !formData.email) {
       alert("First name and email are required");
       return;
     }
 
-    const docRef = await addDoc(collection(db, "users"), newUser);
+    if (editingUserId) {
+      await updateDoc(doc(db, "users", editingUserId), formData);
 
-    const addedUser = { id: docRef.id, ...newUser };
+      const updatedUsers = users.map((u) =>
+        u.id === editingUserId ? { id: editingUserId, ...formData } : u
+      );
 
-    setUsers([...users, addedUser]);
-    setFilteredUsers([...users, addedUser]);
+      setUsers(updatedUsers);
+      setFilteredUsers(updatedUsers);
+      setEditingUserId(null);
+    } else {
+      const docRef = await addDoc(collection(db, "users"), formData);
+      const newUser = { id: docRef.id, ...formData };
 
-    setNewUser({
+      const updatedUsers = [...users, newUser];
+      setUsers(updatedUsers);
+      setFilteredUsers(updatedUsers);
+    }
+
+    // Reset form
+    setFormData({
       firstName: "",
       lastName: "",
       email: "",
@@ -80,10 +100,16 @@ function AdminDashboard() {
     });
   };
 
-  // Delete User
+  // Edit user
+  const handleEdit = (user) => {
+    setFormData(user);
+    setEditingUserId(user.id);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Delete user
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this user?");
-    if (!confirmDelete) return;
+    if (!window.confirm("Delete this user?")) return;
 
     await deleteDoc(doc(db, "users", id));
 
@@ -92,113 +118,134 @@ function AdminDashboard() {
     setFilteredUsers(updated);
   };
 
-  if (loading) return <h2>Loading users…</h2>;
+  if (loading) return <h2 style={{ padding: "40px" }}>Loading...</h2>;
 
   return (
-    <div className="admin-dashboard">
-      <h2>Admin Management Panel</h2>
+    <div className="admin-container">
 
-      {/*  Search */}
-      <input
-        type="text"
-        placeholder="Search by name or email..."
-        value={search}
-        onChange={(e) => handleSearch(e.target.value)}
-        className="search-input"
-      />
+      <h2 className="admin-title">Admin Dashboard</h2>
 
-      {/*  Add User Form */}
-      <form onSubmit={handleAddUser} className="add-user-form">
+      {/* SEARCH SECTION */}
+      <div className="search-card">
+        <h3>Search Users</h3>
         <input
           type="text"
-          placeholder="First Name"
-          value={newUser.firstName}
-          onChange={(e) =>
-            setNewUser({ ...newUser, firstName: e.target.value })
-          }
+          placeholder="Search by name or email..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
-        <input
-          type="text"
-          placeholder="Last Name"
-          value={newUser.lastName}
-          onChange={(e) =>
-            setNewUser({ ...newUser, lastName: e.target.value })
-          }
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={newUser.email}
-          onChange={(e) =>
-            setNewUser({ ...newUser, email: e.target.value })
-          }
-        />
-        <input
-          type="date"
-          value={newUser.dob}
-          onChange={(e) =>
-            setNewUser({ ...newUser, dob: e.target.value })
-          }
-        />
-        <input
-          type="text"
-          placeholder="Contact"
-          value={newUser.contact}
-          onChange={(e) =>
-            setNewUser({ ...newUser, contact: e.target.value })
-          }
-        />
-        <select
-          value={newUser.role}
-          onChange={(e) =>
-            setNewUser({ ...newUser, role: e.target.value })
-          }
-        >
-          <option value="user">User</option>
+      </div>
 
-          <option value="admin">Admin</option>
-        </select>
+      {/* MAIN SECTION */}
+      <div className="main-section">
 
-        <button type="submit">Add User</button>
-      </form>
+        {/* LEFT: Add / Edit User */}
+        <div className="add-section">
+          <h3>{editingUserId ? "Edit User" : "Add User"}</h3>
 
-      {/*  Users Table */}
-      {filteredUsers.length === 0 ? (
-        <p>No users found.</p>
-      ) : (
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>DOB</th>
-              <th>Contact</th>
-              <th>Role</th>
-              <th>Action</th>
-            </tr>
-          </thead>
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              placeholder="First Name"
+              value={formData.firstName}
+              onChange={(e) =>
+                setFormData({ ...formData, firstName: e.target.value })
+              }
+            />
+            <input
+              type="text"
+              placeholder="Last Name"
+              value={formData.lastName}
+              onChange={(e) =>
+                setFormData({ ...formData, lastName: e.target.value })
+              }
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+            />
+            <input
+              type="date"
+              value={formData.dob}
+              onChange={(e) =>
+                setFormData({ ...formData, dob: e.target.value })
+              }
+            />
+            <input
+              type="text"
+              placeholder="Contact"
+              value={formData.contact}
+              onChange={(e) =>
+                setFormData({ ...formData, contact: e.target.value })
+              }
+            />
+            <select
+              value={formData.role}
+              onChange={(e) =>
+                setFormData({ ...formData, role: e.target.value })
+              }
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
 
-          <tbody>
-            {filteredUsers.map((u) => (
-              <tr key={u.id}>
-                <td>{u.firstName} {u.lastName}</td>
-                <td>{u.email}</td>
-                <td>{u.dob}</td>
-                <td>{u.contact}</td>
-                <td>{u.role}</td>
-                <td>
-                  <button
-                    onClick={() => handleDelete(u.id)}
-                    className="delete-btn"
-                  >
-                    Delete
-                  </button>
-                </td>
+            <button type="submit">
+              {editingUserId ? "Update User" : "Add User"}
+            </button>
+          </form>
+        </div>
+
+        {/* RIGHT: User List */}
+        <div className="table-section">
+          <h3>User List</h3>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>DOB</th>
+                <th>Contact</th>
+                <th>Role</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+
+            <tbody>
+              {filteredUsers.map((u) => (
+                <tr key={u.id}>
+                  <td>{u.firstName} {u.lastName}</td>
+                  <td>{u.email}</td>
+                  <td>{u.dob}</td>
+                  <td>{u.contact}</td>
+                  <td>{u.role}</td>
+                  <td>
+                    <button
+                      className="edit-btn"
+                      onClick={() => handleEdit(u)}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      className="delete-btn"
+                      onClick={() => handleDelete(u.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+        </div>
+
+      </div>
     </div>
   );
 }
