@@ -17,7 +17,7 @@ function Login() {
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
 
-  // ================= EMAIL & PASSWORD LOGIN =================
+  // EMAIL & PASSWORD LOGIN 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -31,7 +31,7 @@ function Login() {
 
       const user = userCredential.user;
 
-      // 🔎 Get user role from Firestore
+      // For getting user role from Firestore
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
@@ -39,9 +39,9 @@ function Login() {
         const userData = userSnap.data();
         const role = userData.role;
 
-        alert("✅ Login successful!");
+        alert(" Login successful!");
 
-        // 🔥 ROLE-BASED REDIRECT
+        //If admin redirects to admin dashboard else if user it redirects to user dashboard
         if (role === "admin") {
           navigate("/AdminDashboard");
         } else {
@@ -49,14 +49,14 @@ function Login() {
         }
 
       } else {
-        alert("⚠️ User data not found in database.");
+        alert("User data not found in database.");
       }
 
     } catch (error) {
       if (error.code === "auth/invalid-credential") {
-        alert("❌ Invalid email or password.");
+        alert(" Invalid email or password.");
       } else if (error.code === "auth/user-not-found") {
-        alert("⚠️ No account found with this email.");
+        alert(" No account found with this email.");
       } else {
         alert("Something went wrong. Please try again.");
       }
@@ -74,17 +74,16 @@ function Login() {
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
-      // If first time Google login, create user document
       if (!userSnap.exists()) {
         await setDoc(userRef, {
           firstName: user.displayName || "",
           email: user.email,
-          role: "user", // default role
+          role: "user", 
           createdAt: new Date()
         });
       }
 
-      alert("✅ Logged in successfully with Google!");
+      alert("Logged in successfully with Google!");
 
       navigate("/dashboard");
 
