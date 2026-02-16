@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+
 import History from "./History";
 import Overview from "./Overview";
 import AddTransaction from "./AddTransaction";
 import WeeklyReport from "./WeeklyReport";
-import GenerateQR from "./GenerateQR"; 
-import "../styles/Dashboard.css";
+import GenerateQR from "./GenerateQR";
 import MonthlyBudget from "../components/MonthlyBudget";
+
+import "../styles/Dashboard.css";
+
 import { auth, db } from "../firebase";
 import { collection, getDoc, getDocs, doc } from "firebase/firestore";
 
@@ -13,169 +17,177 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [transactions, setTransactions] = useState([]);
 
-  // 🔥 Popup states
   const [showBudgetPopup, setShowBudgetPopup] = useState(false);
   const [remainingBudget, setRemainingBudget] = useState(null);
+  const [popupShownOnce, setPopupShownOnce] = useState(false);
 
-  // Fetch all transactions from TOP-LEVEL collection
   useEffect(() => {
     const fetchTransactions = async () => {
       const user = auth.currentUser;
       if (!user) return;
 
-      const ref = collection(db, "transactions");
-      const snap = await getDocs(ref);
+      try {
+        const ref = collection(db, "transactions");
+        const snap = await getDocs(ref);
 
-      const list = snap.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .filter((t) => t.uid === user.uid);
+        const list = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .filter((t) => t.uid === user.uid);
 
-      console.log("Fetched transactions:", list);
-      setTransactions(list);
+        setTransactions(list);
+      } catch (err) {
+        console.error(err);
+      }
     };
 
     fetchTransactions();
   }, []);
 
-  // 🔥 Calculate remaining budget for popup
   useEffect(() => {
     const calculateRemaining = async () => {
+      if (popupShownOnce) return;
+
       const user = auth.currentUser;
       if (!user) return;
 
-      // Fetch saved budget
-      const userRef = doc(db, "users", user.uid);
-      const snap = await getDoc(userRef);
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const snap = await getDoc(userRef);
+        if (!snap.exists()) return;
 
-      if (!snap.exists()) return;
+        const savedBudget = snap.data().monthlyBudget;
+        if (!savedBudget) return;
 
-      const savedBudget = snap.data().monthlyBudget;
-      if (!savedBudget) return;
+        const now = new Date();
+        const month = now.getMonth();
+        const year = now.getFullYear();
 
-      // Calculate expenses for current month
-      const now = new Date();
-      const monthlyExpenses = transactions
-        .filter((t) => t.type === "expense")
-        .filter((t) => {
-          const date = new Date(t.date);
-          return (
-            date.getMonth() === now.getMonth() &&
-            date.getFullYear() === now.getFullYear()
-          );
-        })
-        .reduce((sum, t) => {
-          let amt = t.amount;
+        const monthlyExpenses = transactions
+          .filter((t) => t.type === "expense")
+          .filter((t) => {
+            let d = t.date;
+            if (d && typeof d.toDate === "function") d = d.toDate();
+            else d = new Date(d);
+            return d.getMonth() === month && d.getFullYear() === year;
+          })
+          .reduce((sum, t) => {
+            let amt = t.amount;
+            if (typeof amt !== "string") amt = String(amt);
+            amt = parseFloat(amt.replace(/[^0-9.]/g, ""));
+            return sum + (isNaN(amt) ? 0 : amt);
+          }, 0);
 
-          if (typeof amt === "number") amt = amt.toString();
-
-          amt = amt
-            .replace("$", "")
-            .replace("-", "")
-            .replace("+", "");
-
-          return sum + Number(amt);
-        }, 0);
-
-      const remaining = savedBudget - monthlyExpenses;
-
-      setRemainingBudget(remaining);
-      setShowBudgetPopup(true); // Show popup 🌟
+        setRemainingBudget(Number(savedBudget) - monthlyExpenses);
+        setShowBudgetPopup(true);
+        setPopupShownOnce(true);
+      } catch (err) {
+        console.error(err);
+      }
     };
 
-    if (transactions.length > 0) {
-      calculateRemaining();
-    }
-  }, [transactions]);
+    if (transactions.length > 0) calculateRemaining();
+  }, [transactions, popupShownOnce]);
 
   return (
-    <div className="dashboard-container">
+    <div className="dash-page">
+      <div className="dash-shell">
+        {/* Header */}
+        <div className="dash-header">
+          <div>
+            <h1 className="dash-title">Dashboard</h1>
+            <p className="dash-subtitle">Your finance overview in one place</p>
+          </div>
 
-      {/* Header */}
-      <div className="dashboard-header">
-        <h1>Dashboard</h1>
-        <p>Here is your financial summary</p>
-      </div>
-
-      {/* Summary for Overview */}
-      {activeTab === "overview" && (
-        <div className="dashboard-summary">
-          <Overview />
+          <Link to="/update-profile" className="dash-link">
+            Account Settings
+          </Link>
         </div>
-      )}
 
-      {/* Tabs */}
-      <div className="dashboard-tabs">
+        {/* Tabs */}
+        <div className="dash-tabs">
+          {[
+            ["overview", "Overview"],
+            ["history", "History"],
+            ["add", "Add Transaction"],
+            ["weekly", "Weekly Report"],
+            ["qr", "QR Generator"],
+          ].map(([key, label]) => (
+            <button
+              key={key}
+              className={`dash-tab ${activeTab === key ? "active" : ""}`}
+              onClick={() => setActiveTab(key)}
+              type="button"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
-        <button
-          className={activeTab === "overview" ? "active" : ""}
-          onClick={() => setActiveTab("overview")}
-        >
-          Overview
-        </button>
+        {/* Content */}
+        <div className="dash-content">
+          {activeTab === "overview" && (
+            <>
+              <div className="dash-card">
+                <Overview />
+              </div>
 
-        <button
-          className={activeTab === "history" ? "active" : ""}
-          onClick={() => setActiveTab("history")}
-        >
-          History
-        </button>
+              <div className="dash-card">
+                <MonthlyBudget allTransactions={transactions} />
+              </div>
+            </>
+          )}
 
-        <button
-          className={activeTab === "add" ? "active" : ""}
-          onClick={() => setActiveTab("add")}
-        >
-          Add Transaction
-        </button>
+          {activeTab === "history" && (
+            <div className="dash-card">
+              <History />
+            </div>
+          )}
 
-        <button
-          className={activeTab === "weekly" ? "active" : ""}
-          onClick={() => setActiveTab("weekly")}
-        >
-          Weekly Report
-        </button>
+          {activeTab === "add" && (
+            <div className="dash-card">
+              <AddTransaction />
+            </div>
+          )}
 
-        <button
-          className={activeTab === "qr" ? "active" : ""}
-          onClick={() => setActiveTab("qr")}
-        >
-          QR Generator
-        </button>
+          {activeTab === "weekly" && (
+            <div className="dash-card">
+              <WeeklyReport />
+            </div>
+          )}
 
+          {activeTab === "qr" && (
+            <div className="dash-card">
+              <GenerateQR />
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="dashboard-content">
-        {activeTab === "overview" && <Overview />}
-        {activeTab === "history" && <History />}
-        {activeTab === "add" && <AddTransaction />}
-        {activeTab === "weekly" && <WeeklyReport />}
-        {activeTab === "qr" && <GenerateQR />}
-      </div>
-
-      {/* Monthly Budget */}
-      {activeTab === "overview" && (
-        <MonthlyBudget allTransactions={transactions} />
-      )}
-
-      {/* 🔥 POPUP UI */}
+      {/* Popup */}
       {showBudgetPopup && remainingBudget !== null && (
-        <div className="budget-popup">
-          <div className="popup-content">
-            <h4>Budget Reminder</h4>
-            <p>Your remaining budget for this month is:</p>
-            <h2 className={remainingBudget < 0 ? "text-danger" : "text-success"}>
-              ${remainingBudget}
-            </h2>
+        <div className="dash-modal" onClick={() => setShowBudgetPopup(false)}>
+          <div className="dash-modal-card" onClick={(e) => e.stopPropagation()}>
+            <h3 className="dash-modal-title">Budget Reminder</h3>
+            <p className="dash-modal-text">Remaining budget this month</p>
+
+            <div
+              className={`dash-modal-amount ${
+                remainingBudget < 0 ? "danger" : "success"
+              }`}
+            >
+              ${Number(remainingBudget).toFixed(2)}
+            </div>
 
             <button
-              className="btn btn-primary mt-3"
+              className="dash-modal-btn"
               onClick={() => setShowBudgetPopup(false)}
+              type="button"
             >
               OK
             </button>
           </div>
         </div>
       )}
-
     </div>
   );
 };

@@ -1,220 +1,528 @@
-/* ===== Dashboard Layout ===== */
-.dashboard-container {
-  padding: 30px;
-  text-align: center;
-  background-color: #f5fdfd;
+/* =========================
+   Global / Safety
+========================= */
+html, body {
+  overflow-x: hidden;
+}
+
+/* =========================
+   Dashboard Layout (dash-*)
+========================= */
+.dash-page {
   min-height: 100vh;
+  background: #f4faf9;
+  padding: 28px 18px;
 }
 
-.dashboard-title {
-  color: #006666;
-  font-weight: bold;
-  margin-bottom: 20px;
+.dash-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
 }
 
-/* ===== Tabs Section (Buttons Row) ===== */
-.dashboard-tabs {
+/* Header */
+.dash-header {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 15px; /* space between buttons */
-  margin-bottom: 25px;
-  flex-wrap: wrap; /* responsive */
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.dashboard-tabs button {
-  flex: 1;
-  max-width: 200px;
-  background-color: #007a7a;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  padding: 12px 0;
-  font-weight: 600;
-  font-size: 16px;
-  cursor: pointer;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
-  transition: all 0.25s ease;
-}
-
-.dashboard-tabs button:hover {
-  background-color: #006060;
-  transform: scale(1.04);
-}
-
-.dashboard-tabs .active {
-  background-color: #004d4d;
-  transform: scale(1.05);
-}
-
-/* ===== General Section Layout ===== */
-.add-form,
-.history-section,
-.overview-section {
-  background-color: #ffffff;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
-  margin: 0 auto 40px auto;
-}
-
-/* ===== Add Transaction Form ===== */
-.add-form {
+.dash-header-left {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  gap: 12px;
-  max-width: 420px;
 }
 
-.add-form h3 {
-  margin-bottom: 10px;
-  color: #004d4d;
-  font-weight: 600;
+.dash-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+  color: #0b3b3a;
 }
 
-.add-form select,
-.add-form input {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 15px;
-  box-sizing: border-box;
+.dash-subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #5b6b6b;
+}
+
+.dash-link {
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #0f766e;
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  text-decoration: none;
   transition: 0.2s ease;
+  white-space: nowrap;
 }
 
-.add-form select:focus,
-.add-form input:focus {
-  border-color: #007a7a;
-  outline: none;
-  box-shadow: 0 0 5px rgba(0, 122, 122, 0.3);
+.dash-link:hover {
+  background: #0b5e58;
+  transform: translateY(-1px);
 }
 
-.add-form button {
-  width: 100%;
-  background-color: #007a7a;
-  color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  padding: 12px;
-  font-size: 15px;
+/* Tabs */
+.dash-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 18px 0 16px;
+  padding: 10px;
+  border-radius: 16px;
+  background: rgba(15, 118, 110, 0.07);
+}
+
+.dash-tab {
+  border: 1px solid rgba(15, 118, 110, 0.25);
+  background: #fff;
+  color: #0b3b3a;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 900;
+  font-size: 14px;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: 0.2s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
 }
 
-.add-form button:hover {
-  background-color: #005f5f;
-  transform: translateY(-2px);
+.dash-tab:hover {
+  transform: translateY(-1px);
+  border-color: rgba(15, 118, 110, 0.5);
 }
 
-/* ===== History List ===== */
-.history-list {
-  list-style: none;
-  padding: 0;
-  margin-top: 20px;
+.dash-tab.active {
+  background: #0f766e;
+  color: #fff;
+  border-color: #0f766e;
+  box-shadow: 0 10px 24px rgba(15, 118, 110, 0.25);
+}
+
+/* Content */
+.dash-content {
+  display: grid;
+  gap: 16px;
+}
+
+.dash-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+}
+
+/* =========================
+   Overview Styles
+========================= */
+
+/* Overview wrapper (your Overview uses this class) */
+.overview-section {
   text-align: left;
 }
 
-.history-list li {
-  background: #e6f2f2;
-  padding: 10px 15px;
-  border-radius: 8px;
-  margin-bottom: 8px;
-  font-size: 15px;
-}
-
-/* ===== Chart Section ===== */
-.chart-container {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  flex-wrap: wrap;
-}
-
-.pie-chart, .line-chart {
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* ===== Filters ===== */
+/* Filter bar row */
 .filter-bar {
+  width: 100%;
   display: flex;
-  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
   align-items: center;
+  margin-top: 10px;
+}
+
+/* Filter buttons group */
+.quick-filters {
+  display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin: 20px 0;
 }
 
-.filter-bar input,
-.filter-bar select {
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-  box-sizing: border-box;
-}
-
+/* Filter buttons */
 .quick-filters button {
-  background-color: #f0f0f0;
-  border: none;
-  padding: 6px 10px;
-  margin: 0 5px;
-  border-radius: 6px;
+  border: 1px solid rgba(15, 118, 110, 0.25);
+  background: #ffffff;
+  color: #0b3b3a;
+  border-radius: 999px;
+  padding: 9px 14px;
+  font-weight: 800;
+  font-size: 13px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 0.2s ease;
 }
 
 .quick-filters button:hover {
-  background-color: #2196f3;
-  color: white;
+  transform: translateY(-1px);
+  border-color: rgba(15, 118, 110, 0.5);
 }
 
-/* ===== Responsive ===== */
+/* Active filter (used in Overview.jsx) */
+.quick-filters button.active-filter {
+  background: #0f766e;
+  color: #ffffff;
+  border-color: #0f766e;
+  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.25);
+}
+
+/* Date range inputs */
+.date-range {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.date-range input {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  outline: none;
+  font-size: 14px;
+  background: #fff;
+  transition: 0.2s ease;
+}
+
+.date-range input:focus {
+  border-color: rgba(15, 118, 110, 0.55);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+/* Charts stacked vertically */
+.chart-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: stretch;
+  width: 100%;
+  margin-top: 14px;
+}
+
+.pie-chart,
+.line-chart {
+  width: 100%;
+  max-width: 100%;
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* IMPORTANT for Chart.js responsiveness */
+.chart-box {
+  width: 100%;
+  height: 320px;
+}
+
 @media (max-width: 600px) {
-  .dashboard-tabs {
-    flex-direction: column;
+  .chart-box {
+    height: 260px;
+  }
+}
+
+.pie-chart canvas,
+.line-chart canvas {
+  max-width: 100% !important;
+}
+
+/* =========================
+   History Section Styles
+   (Use these classes in History.jsx)
+========================= */
+.history-wrap {
+  text-align: left;
+}
+
+.history-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.history-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 900;
+  color: #0b3b3a;
+}
+
+.history-subtitle {
+  margin: 6px 0 0;
+  color: #5b6b6b;
+  font-size: 14px;
+}
+
+/* Toolbar */
+.history-toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin: 14px 0 16px;
+}
+
+.history-tools-left {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.history-search {
+  width: min(320px, 100%);
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.12);
+  outline: none;
+  font-size: 14px;
+  background: #fff;
+}
+
+.history-search:focus {
+  border-color: rgba(15, 118, 110, 0.55);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+.history-select {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.12);
+  outline: none;
+  font-size: 14px;
+  background: #fff;
+}
+
+.history-btn {
+  border: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #0f766e;
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-btn:hover {
+  background: #0b5e58;
+  transform: translateY(-1px);
+}
+
+/* Table card */
+.history-table-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+/* Mobile horizontal scroll for table */
+.history-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 760px;
+}
+
+.history-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f1f7f6;
+  color: #0b3b3a;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  font-weight: 900;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.history-table tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  color: #1f2b2b;
+  font-size: 14px;
+}
+
+.history-table tbody tr:nth-child(even) td {
+  background: rgba(15, 118, 110, 0.03);
+}
+
+.history-table tbody tr:hover td {
+  background: rgba(15, 118, 110, 0.08);
+}
+
+/* Amount pill */
+.amount-pill {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+}
+
+.amount-pill.income {
+  background: rgba(46, 213, 115, 0.16);
+  color: #167a3a;
+  border: 1px solid rgba(46, 213, 115, 0.25);
+}
+
+.amount-pill.expense {
+  background: rgba(255, 71, 87, 0.14);
+  color: #b11220;
+  border: 1px solid rgba(255, 71, 87, 0.25);
+}
+
+/* =========================
+   Modal (Budget popup)
+========================= */
+.dash-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 20, 20, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+.dash-modal-card {
+  width: min(390px, 95vw);
+  background: #fff;
+  border-radius: 18px;
+  padding: 22px 18px;
+  text-align: center;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.25);
+}
+
+.dash-modal-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 900;
+  color: #0b3b3a;
+}
+
+.dash-modal-text {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #5b6b6b;
+}
+
+.dash-modal-amount {
+  margin: 14px 0 16px;
+  font-size: 32px;
+  font-weight: 950;
+}
+
+.dash-modal-amount.success {
+  color: #0f766e;
+}
+
+.dash-modal-amount.danger {
+  color: #d32f2f;
+}
+
+.dash-modal-btn {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: none;
+  background: #0f766e;
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.dash-modal-btn:hover {
+  background: #0b5e58;
+  transform: translateY(-1px);
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 900px) {
+  .dash-tabs {
+    justify-content: flex-start;
   }
 
-  .add-form {
-    width: 90%;
-    padding: 20px;
+  .dash-tab {
+    flex: 1 1 160px;
+  }
+}
+
+@media (max-width: 600px) {
+  .dash-shell {
+    padding: 18px 14px 22px;
+  }
+
+  .dash-title {
+    font-size: 22px;
+  }
+
+  .dash-tab {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .dash-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dash-link {
+    width: 100%;
+    text-align: center;
   }
 
   .filter-bar {
     flex-direction: column;
-    gap: 8px;
+    align-items: stretch;
   }
 
-  .chart-container {
+  .date-range input {
+    width: 100%;
+  }
+
+  .quick-filters button {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .history-head {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
   }
-}
-.budget-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
 
-.popup-content {
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  width: 300px;
-  text-align: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  .history-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }

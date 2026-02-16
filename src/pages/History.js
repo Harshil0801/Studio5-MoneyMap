@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { collection, query, where, getDocs } from "firebase/firestore";
 import { db, auth } from "../firebase";
-
-// PDF libraries
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 function History() {
   const [transactions, setTransactions] = useState([]);
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
 
   useEffect(() => {
-    const fetchFromFirestore = async () => {
+    const loadTransactions = async () => {
       const user = auth.currentUser;
       if (!user) return;
 
@@ -19,119 +17,91 @@ function History() {
         where("uid", "==", user.uid)
       );
 
-      const snapshot = await getDocs(q);
-      const list = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const snap = await getDocs(q);
+      const list = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
       setTransactions(list);
     };
 
-    fetchFromFirestore();
+    loadTransactions();
   }, []);
 
-  // ============================
-  // 📌 DOWNLOAD PDF FUNCTION
-  // ============================
-  const downloadPDF = () => {
-    const doc = new jsPDF();
-
-    // Title
-    doc.setFontSize(18);
-    doc.text("MoneyMap - Transaction History", 14, 20);
-
-    // Date
-    doc.setFontSize(12);
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
-
-    // Prepare rows
-    const rows = transactions.map((t) => [
-      t.date,
-      t.description,
-      t.category,
-      `${t.type === "income" ? "+" : "-"}$${t.amount}`
-    ]);
-
-    // AutoTable (correct syntax)
-    autoTable(doc, {
-      head: [["Date", "Description", "Category", "Amount"]],
-      body: rows,
-      startY: 40,
-    });
-
-    doc.save("MoneyMap_Transactions.pdf");
-  };
+  const filteredTransactions = transactions.filter((t) => {
+    const text = `${t.description || ""} ${t.category || ""}`.toLowerCase();
+    const okSearch = text.includes(search.toLowerCase());
+    const okType =
+      typeFilter === "all" ? true : t.type === typeFilter;
+    return okSearch && okType;
+  });
 
   return (
-    <div className="history-page" style={{ padding: "20px" }}>
-      <h2>Expense History</h2>
-      <p>View and filter all your past expenses and incomes.</p>
+    <div className="history-wrap">
+      <div className="history-head">
+        <div>
+          <h2 className="history-title">Expense History</h2>
+          <p className="history-subtitle">
+            View and filter all your past expenses and incomes.
+          </p>
+        </div>
+      </div>
 
-      {/* Download PDF Button */}
-      <button
-        onClick={downloadPDF}
-        style={{
-          padding: "10px 20px",
-          backgroundColor: "#0078ff",
-          color: "white",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer",
-          marginBottom: "15px",
-          fontWeight: "600",
-        }}
-      >
-        📄 Download PDF
-      </button>
+      <div className="history-toolbar">
+        <div className="history-tools-left">
+          <input
+            className="history-search"
+            placeholder="Search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-      {transactions.length === 0 ? (
-        <p>No transactions found.</p>
-      ) : (
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            marginTop: "15px",
-          }}
-        >
-          <thead>
-            <tr style={{ backgroundColor: "#f0f0f0" }}>
-              <th style={{ padding: "10px", border: "1px solid #ddd" }}>Date</th>
-              <th style={{ padding: "10px", border: "1px solid #ddd" }}>
-                Description
-              </th>
-              <th style={{ padding: "10px", border: "1px solid #ddd" }}>
-                Category
-              </th>
-              <th style={{ padding: "10px", border: "1px solid #ddd" }}>
-                Amount
-              </th>
-            </tr>
-          </thead>
+          <select
+            className="history-select"
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+          >
+            <option value="all">All</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+        </div>
+      </div>
 
-          <tbody>
-            {transactions.map((t) => (
-              <tr key={t.id}>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                  {t.date}
-                </td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                  {t.description}
-                </td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                  {t.category}
-                </td>
-                <td
-                  style={{
-                    padding: "10px",
-                    border: "1px solid #ddd",
-                    color: t.type === "income" ? "green" : "red",
-                  }}
-                >
-                  {t.type === "income" ? "+" : "-"}${t.amount}
-                </td>
+      <div className="history-table-card">
+        <div className="history-table-scroll">
+          <table className="history-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th style={{ textAlign: "right" }}>Amount</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {filteredTransactions.map((t) => (
+                <tr key={t.id}>
+                  <td>{t.date}</td>
+                  <td>{t.description}</td>
+                  <td>{t.category}</td>
+                  <td style={{ textAlign: "right" }}>
+                    <span
+                      className={`amount-pill ${
+                        t.type === "income" ? "income" : "expense"
+                      }`}
+                    >
+                      {t.type === "income" ? "+" : "-"}$
+                      {Number(t.amount).toFixed(2)}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
