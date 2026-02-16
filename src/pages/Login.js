@@ -5,42 +5,53 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { auth, db } from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/Login.css";
-
-// State variables for email, password, and loading status
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
 
-  // Handle login using Email & Password
+  // ================= EMAIL & PASSWORD LOGIN =================
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // Firebase Auth login
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password
       );
+
       const user = userCredential.user;
 
+      // 🔎 Get user role from Firestore
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
       if (userSnap.exists()) {
-        console.log("User data:", userSnap.data());
+        const userData = userSnap.data();
+        const role = userData.role;
+
+        alert("✅ Login successful!");
+
+        // 🔥 ROLE-BASED REDIRECT
+        if (role === "admin") {
+          navigate("/AdminDashboard");
+        } else {
+          navigate("/dashboard");
+        }
+
+      } else {
+        alert("⚠️ User data not found in database.");
       }
 
-      alert("✅ Login successful!");
-      navigate("/dashboard");
     } catch (error) {
       if (error.code === "auth/invalid-credential") {
         alert("❌ Invalid email or password.");
@@ -54,12 +65,29 @@ function Login() {
     }
   };
 
-  // 🔹 Google Login
+  // ================= GOOGLE LOGIN =================
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      // If first time Google login, create user document
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          firstName: user.displayName || "",
+          email: user.email,
+          role: "user", // default role
+          createdAt: new Date()
+        });
+      }
+
       alert("✅ Logged in successfully with Google!");
+
       navigate("/dashboard");
+
     } catch (error) {
       alert("❌ " + error.message);
     }
@@ -68,12 +96,14 @@ function Login() {
   return (
     <div className="login-page">
       <div className="login-card">
+
         <h2 className="login-title">Welcome Back!</h2>
         <p className="login-subtitle">
           Log in to manage your finances smarter 💼
         </p>
 
         <form onSubmit={handleLogin} className="login-form">
+
           <input
             type="email"
             placeholder="Email Address"
@@ -93,8 +123,10 @@ function Login() {
           <button className="primary-btn" type="submit" disabled={loading}>
             {loading ? "Logging in..." : "Login"}
           </button>
+
         </form>
 
+        {/* GOOGLE LOGIN */}
         <div className="google-btn-container">
           <button className="google-btn" onClick={handleGoogleLogin}>
             <img
@@ -105,6 +137,7 @@ function Login() {
           </button>
         </div>
 
+        {/* LINKS */}
         <div className="login-links">
           <p>
             Don’t have an account? <Link to="/register">Register</Link>
@@ -113,11 +146,11 @@ function Login() {
             <Link to="/forgot-password">Forgot Password?</Link>
           </p>
 
-          {/* ✅ BACK TO HOME AT BOTTOM */}
           <p className="back-home-link">
-            <Link to="/">← Back to Home</Link>
+            <Link to="/"> Back to Home</Link>
           </p>
         </div>
+
       </div>
     </div>
   );
