@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
+
 import History from "./History";
 import Overview from "./Overview";
 import AddTransaction from "./AddTransaction";
@@ -26,19 +28,19 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [transactions, setTransactions] = useState([]);
 
-  // 🔹 Auth/User
+  // Auth
   const [userUid, setUserUid] = useState(null);
 
-  // 🔹 Multi-Currency (preferred + persistent)
+  // Multi-currency
   const [selectedCurrency, setSelectedCurrency] = useState("NZD");
   const [exchangeRate, setExchangeRate] = useState(1);
   const [rateUpdatedAt, setRateUpdatedAt] = useState(null);
 
-  // ✅ Advanced rate metadata
+  // rate metadata
   const [rateStatus, setRateStatus] = useState("CACHED"); // LIVE/CACHED/STALE/OFFLINE
   const [nextRefreshInMs, setNextRefreshInMs] = useState(null);
 
-  // Popup
+  // Budget popup
   const [showBudgetPopup, setShowBudgetPopup] = useState(false);
   const [remainingBudget, setRemainingBudget] = useState(null);
   const [popupShownOnce, setPopupShownOnce] = useState(false);
@@ -56,7 +58,6 @@ const Dashboard = () => {
 
       setUserUid(u.uid);
 
-      // Load preferred currency from Firestore (users/{uid})
       try {
         const userRef = doc(db, "users", u.uid);
         const snap = await getDoc(userRef);
@@ -111,7 +112,7 @@ const Dashboard = () => {
   );
 
   // ===========================
-  // FETCH EXCHANGE RATE (CACHED + STATUS)
+  // LOAD EXCHANGE RATE (CACHED)
   // ===========================
   useEffect(() => {
     const loadRate = async () => {
@@ -139,7 +140,7 @@ const Dashboard = () => {
   }, [selectedCurrency]);
 
   // ===========================
-  // CALCULATE REMAINING BUDGET (NZD base, multi-currency safe)
+  // CALCULATE REMAINING BUDGET
   // ===========================
   useEffect(() => {
     const calculateRemaining = async () => {
@@ -192,13 +193,19 @@ const Dashboard = () => {
       <div className="dashboard-shell">
         {/* HEADER */}
         <div className="dashboard-header">
-          <h1>Dashboard</h1>
-          <p>Here is your financial summary</p>
+          <div>
+            <h1>Dashboard</h1>
+            <p>Here is your financial summary</p>
+          </div>
+
+          <Link to="/update-profile" className="profile-link">
+            Account Settings
+          </Link>
         </div>
 
-        {/* TOP GRID (Professional Layout) */}
+        {/* TOP GRID */}
         <div className="dashboard-topgrid">
-          {/* Currency + Exchange Card */}
+          {/* Currency + Exchange */}
           <div className="dashboard-card">
             <div className="card-title">Currency & Exchange Rates</div>
 
@@ -232,7 +239,7 @@ const Dashboard = () => {
                   Base <b>NZD</b> → <b>{selectedCurrency}</b>
                 </div>
 
-                <span className={`status-pill status-${rateStatus.toLowerCase()}`}>
+                <span className={`status-pill status-${String(rateStatus).toLowerCase()}`}>
                   {rateStatus}
                 </span>
 
@@ -282,7 +289,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Converter Card */}
+          {/* Converter */}
           <div className="dashboard-card">
             <div className="card-title">Quick Currency Converter</div>
             <CurrencyConverterWidget defaultTo={selectedCurrency} />
@@ -332,6 +339,7 @@ const Dashboard = () => {
               selectedCurrency={selectedCurrency}
             />
           )}
+
           {activeTab === "history" && (
             <History
               transactions={transactions}
@@ -339,15 +347,20 @@ const Dashboard = () => {
               selectedCurrency={selectedCurrency}
             />
           )}
+
           {activeTab === "add" && (
             <AddTransaction
               selectedCurrency={selectedCurrency}
               onTransactionAdded={fetchTransactions}
             />
           )}
+
           {activeTab === "weekly" && (
-  <WeeklyReport exchangeRate={exchangeRate} selectedCurrency={selectedCurrency} />
-)}
+            <WeeklyReport
+              exchangeRate={exchangeRate}
+              selectedCurrency={selectedCurrency}
+            />
+          )}
 
           {activeTab === "qr" && <GenerateQR />}
         </div>

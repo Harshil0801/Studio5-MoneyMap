@@ -9,7 +9,8 @@ const GenerateQR = () => {
     const user = auth.currentUser;
     if (user) {
       // Local testing URL
-      const url = `http://localhost:3000/user-summary?uid=${user.uid}`;
+      const url = `${window.location.origin}/transaction-pdf?uid=${user.uid}`;
+
       setQrValue(url);
     }
   }, []);
