@@ -526,3 +526,22 @@ html, body {
     justify-content: center;
   }
 }
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-link {
+  padding: 8px 18px;
+  background-color: #2e7d7a;
+  color: white;
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: 14px;
+  transition: 0.3s ease;
+}
+
+.profile-link:hover {
+  background-color: #1f5f5c;
+}
