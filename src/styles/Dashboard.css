@@ -1,4 +1,12 @@
 /* =========================
+  feature/multi-currency
+   Global Dashboard Layout
+========================= */
+.dashboard-container {
+  padding: 22px;
+  text-align: center;
+  background-color: #f6fbfb;
+ 
    Global / Safety
 ========================= */
 html, body {
@@ -9,11 +17,196 @@ html, body {
    Dashboard Layout (dash-*)
 ========================= */
 .dash-page {
+ main
   min-height: 100vh;
   background: #f4faf9;
   padding: 28px 18px;
 }
 
+  feature/multi-currency
+.dashboard-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header (clean + professional) */
+.dashboard-header {
+  margin: 8px 0 14px 0;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.dashboard-header p {
+  margin: 6px 0 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* =========================
+   Top Grid (Currency + Converter)
+========================= */
+.dashboard-topgrid {
+  display: grid;
+  grid-template-columns: 1.35fr 0.65fr;
+  gap: 16px;
+  align-items: start;
+  margin: 18px 0 16px 0;
+}
+
+.dashboard-card {
+  background: #ffffff;
+  border: 1px solid #dbe3ea;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.06);
+  text-align: left;
+}
+
+.card-title {
+  font-weight: 900;
+  color: #004d4d;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+/* Form fields (consistent) */
+.field-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.field-col {
+  flex: 1;
+  min-width: 220px;
+}
+
+.field-label {
+  font-size: 12px;
+  opacity: 0.75;
+  display: block;
+  margin-bottom: 6px;
+  color: #0f172a;
+}
+
+.field-control {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  outline: none;
+  background: white;
+}
+
+/* =========================
+   Exchange Bar (Rate + Status + Refresh)
+========================= */
+.exchange-bar {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  background: #f3f6f9;
+  border: 1px solid #dbe3ea;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.exchange-left {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.exchange-title {
+  font-weight: 800;
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.status-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+/* Status colors */
+.status-live {
+  border-color: #22c55e;
+  color: #166534;
+}
+.status-cached {
+  border-color: #0ea5e9;
+  color: #075985;
+}
+.status-stale {
+  border-color: #f59e0b;
+  color: #92400e;
+}
+.status-offline {
+  border-color: #ef4444;
+  color: #991b1b;
+}
+
+.offline-text {
+  font-size: 12px;
+  color: #b45309;
+  font-weight: 800;
+}
+
+.exchange-mid {
+  font-size: 14px;
+  color: #334155;
+  font-weight: 700;
+}
+
+.exchange-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.exchange-meta {
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.25;
+  text-align: right;
+}
+
+.btn-outline {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #0078ff;
+  background: white;
+  color: #0078ff;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-outline:hover {
+  transform: translateY(-1px);
+}
+
+/* =========================
+   Tabs (Modern Pills)
+========================= */
+.dashboard-tabs {
+ 
 .dash-shell {
   max-width: 1200px;
   margin: 0 auto;
@@ -26,9 +219,65 @@ html, body {
 
 /* Header */
 .dash-header {
+ main
   display: flex;
   justify-content: space-between;
   align-items: center;
+ feature/multi-currency
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px;
+  border-radius: 16px;
+  background: white;
+  border: 1px solid #dbe3ea;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 16px;
+}
+
+.dashboard-tabs button {
+  flex: none;
+  min-width: 140px;
+  background-color: #007a7a;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  box-shadow: none;
+}
+
+.dashboard-tabs button:hover {
+  background-color: #006060;
+  transform: translateY(-1px);
+}
+
+.dashboard-tabs .active {
+  background-color: #004d4d;
+}
+
+/* =========================
+   Content Area (Card)
+========================= */
+.dashboard-content {
+  background: white;
+  border: 1px solid #dbe3ea;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+  text-align: left;
+}
+
+/* =========================
+   Keep Your Existing Styles
+========================= */
+
+/* General Section Layout */
+.add-form,
+.history-section,
+ 
   gap: 12px;
   padding-bottom: 16px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
@@ -125,16 +374,32 @@ html, body {
 ========================= */
 
 /* Overview wrapper (your Overview uses this class) */
+ main
 .overview-section {
   text-align: left;
 }
 
+  feature/multi-currency
+/* Add Transaction Form */
+.add-form {
+ 
 /* Filter bar row */
 .filter-bar {
   width: 100%;
+  main
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+ feature/multi-currency
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.add-form h3 {
+  margin-bottom: 10px;
+  color: #004d4d;
+  font-weight: 800;
+ 
   justify-content: space-between;
   align-items: center;
   margin-top: 10px;
@@ -158,6 +423,7 @@ html, body {
   font-size: 13px;
   cursor: pointer;
   transition: 0.2s ease;
+  main
 }
 
 .quick-filters button:hover {
@@ -182,11 +448,18 @@ html, body {
 
 .date-range input {
   padding: 10px 12px;
+  feature/multi-currency
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  box-sizing: border-box;
+ 
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.12);
   outline: none;
   font-size: 14px;
   background: #fff;
+  main
   transition: 0.2s ease;
 }
 
@@ -202,6 +475,29 @@ html, body {
   gap: 18px;
   align-items: stretch;
   width: 100%;
+ feature/multi-currency
+  background-color: #007a7a;
+  color: white;
+  font-weight: 900;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.add-form button:hover {
+  background-color: #005f5f;
+  transform: translateY(-1px);
+}
+
+/* Chart Section */
+.chart-container {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+ 
   margin-top: 14px;
 }
 
@@ -276,13 +572,21 @@ html, body {
 .history-tools-left {
   display: flex;
   gap: 10px;
+  main
   flex-wrap: wrap;
   align-items: center;
 }
 
+  feature/multi-currency
+.pie-chart,
+.line-chart {
+  background-color: #ffffff;
+  padding: 20px;
+ 
 .history-search {
   width: min(320px, 100%);
   padding: 10px 12px;
+ main
   border-radius: 12px;
   border: 1px solid rgba(0,0,0,0.12);
   outline: none;
@@ -290,6 +594,10 @@ html, body {
   background: #fff;
 }
 
+ feature/multi-currency
+/* Filters */
+.filter-bar {
+ 
 .history-search:focus {
   border-color: rgba(15, 118, 110, 0.55);
   box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
@@ -403,6 +711,7 @@ html, body {
   position: fixed;
   inset: 0;
   background: rgba(10, 20, 20, 0.55);
+  main
   display: flex;
   justify-content: center;
   align-items: center;
@@ -411,6 +720,111 @@ html, body {
   backdrop-filter: blur(4px);
 }
 
+  feature/multi-currency
+.filter-bar input,
+.filter-bar select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* Popup */
+.budget-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.popup-content {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  width: 320px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* =========================
+   Currency Converter Widget
+========================= */
+.currency-card {
+  background: #ffffff;
+  border: 1px solid #dbe3ea;
+  border-radius: 15px;
+  padding: 12px;
+  text-align: left;
+}
+
+.currency-card h4 {
+  margin: 0 0 10px 0;
+  color: #004d4d;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.currency-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.currency-row input,
+.currency-row select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.currency-result {
+  margin-top: 12px;
+  font-size: 15px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.currency-note {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 900px) {
+  .dashboard-topgrid {
+    grid-template-columns: 1fr;
+  }
+
+  .exchange-meta {
+    text-align: left;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-tabs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dashboard-tabs button {
+    width: 100%;
+  }
+
+  .dashboard-container {
+    padding: 14px;
+ 
 .dash-modal-card {
   width: min(390px, 95vw);
   background: #fff;
@@ -524,6 +938,7 @@ html, body {
   .history-btn {
     width: 100%;
     justify-content: center;
+  main
   }
 }
 .dashboard-header {
