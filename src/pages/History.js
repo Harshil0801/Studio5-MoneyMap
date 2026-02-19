@@ -1,4 +1,3 @@
-  feature/multi-currency
 import React, { useMemo, useState } from "react";
 import { updateDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
@@ -9,7 +8,11 @@ import autoTable from "jspdf-autotable";
 
 import { getRatesTable } from "../utils/exchangeRateService";
 
-function History({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD" }) {
+function History({
+  transactions = [],
+  exchangeRate = 1,
+  selectedCurrency = "NZD",
+}) {
   const [editing, setEditing] = useState(false);
   const [editData, setEditData] = useState({
     id: "",
@@ -17,7 +20,7 @@ function History({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD"
     description: "",
     category: "",
     amount: "",
-    type: "",
+    type: "expense",
     currency: "NZD",
     amountNZD: null,
   });
@@ -53,7 +56,6 @@ function History({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD"
   };
 
   const fmt = (n) => Number(n || 0).toFixed(2);
-
   const money = (n) => `${fmt(n)} ${selectedCurrency}`;
 
   // ==========================
@@ -73,38 +75,9 @@ function History({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD"
       expense,
       balance: income - expense,
       count: transactions.length,
- 
-import React, { useState, useEffect } from "react";
-import { db, auth } from "../firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
-
-function History() {
-  const [transactions, setTransactions] = useState([]);
-  const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState("all");
-
-  useEffect(() => {
-    const loadTransactions = async () => {
-      const user = auth.currentUser;
-      if (!user) return;
-
-      const q = query(
-        collection(db, "transactions"),
-        where("uid", "==", user.uid)
-      );
-
-      const snap = await getDocs(q);
-      const list = snap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setTransactions(list);
- main
     };
-  }, [transactions, exchangeRate]);
+  }, [transactions, exchangeRate, selectedCurrency]);
 
- feature/multi-currency
   // ==========================
   // ✅ Sort by date (newest first)
   // ==========================
@@ -145,7 +118,16 @@ function History() {
     });
 
     autoTable(docPDF, {
-      head: [["Date", "Description", "Category", "Type", "Original", `Converted (${selectedCurrency})`]],
+      head: [
+        [
+          "Date",
+          "Description",
+          "Category",
+          "Type",
+          "Original",
+          `Converted (${selectedCurrency})`,
+        ],
+      ],
       body: rows,
       startY: 38,
       styles: { fontSize: 9 },
@@ -160,7 +142,9 @@ function History() {
   // ============================
   const openEditPopup = (t) => {
     const dObj = toDateObj(t.date);
-    const dateForInput = isNaN(dObj.getTime()) ? "" : dObj.toISOString().slice(0, 10);
+    const dateForInput = isNaN(dObj.getTime())
+      ? ""
+      : dObj.toISOString().slice(0, 10);
 
     setEditData({
       id: t.id,
@@ -172,6 +156,7 @@ function History() {
       currency: t.currency || "NZD",
       amountNZD: t.amountNZD ?? null,
     });
+
     setEditing(true);
   };
 
@@ -184,23 +169,23 @@ function History() {
 
       let newAmountNZD = editData.amountNZD;
 
-      const hasCurrency = !!editData.currency;
-      if (hasCurrency) {
-        const table = await getRatesTable();
-        const rates = table?.rates || { NZD: 1 };
+      // Recalculate amountNZD based on stored currency + latest cached rates
+      const table = await getRatesTable();
+      const rates = table?.rates || { NZD: 1 };
 
-        const amt = safeNumber(editData.amount);
-        const cur = editData.currency || "NZD";
+      const amt = safeNumber(editData.amount);
+      const cur = editData.currency || "NZD";
 
-        if (cur === "NZD") {
-          newAmountNZD = amt;
-        } else {
-          const rate = rates?.[cur];
-          newAmountNZD = rate ? amt * (1 / rate) : amt;
-        }
-
-        newAmountNZD = Number(Number(newAmountNZD).toFixed(2));
+      if (cur === "NZD") {
+        newAmountNZD = amt;
+      } else {
+        const rate = rates?.[cur];
+        // If your rates table is "1 NZD = rate CUR"
+        // then NZD = CUR / rate  => NZD = amt * (1/rate)
+        newAmountNZD = rate ? amt * (1 / rate) : amt;
       }
+
+      newAmountNZD = Number(Number(newAmountNZD).toFixed(2));
 
       await updateDoc(ref, {
         date: editData.date ? new Date(editData.date) : new Date(),
@@ -208,7 +193,8 @@ function History() {
         category: editData.category,
         amount: Number(safeNumber(editData.amount).toFixed(2)),
         type: editData.type,
-        ...(hasCurrency ? { currency: editData.currency, amountNZD: newAmountNZD } : {}),
+        currency: editData.currency,
+        amountNZD: newAmountNZD,
       });
 
       alert("Transaction updated!");
@@ -218,18 +204,6 @@ function History() {
       console.log(err);
     }
   };
- 
-    loadTransactions();
-  }, []);
-
-  const filteredTransactions = transactions.filter((t) => {
-    const text = `${t.description || ""} ${t.category || ""}`.toLowerCase();
-    const okSearch = text.includes(search.toLowerCase());
-    const okType =
-      typeFilter === "all" ? true : t.type === typeFilter;
-    return okSearch && okType;
-  });
-  main
 
   // ==========================
   // UI styles (light + modern)
@@ -248,20 +222,27 @@ function History() {
     borderRadius: 999,
     fontSize: 12,
     fontWeight: 900,
-    background: type === "income" ? "rgba(22,163,74,0.12)" : "rgba(220,38,38,0.12)",
+    background:
+      type === "income"
+        ? "rgba(22,163,74,0.12)"
+        : "rgba(220,38,38,0.12)",
     color: type === "income" ? "#166534" : "#991b1b",
-    border: `1px solid ${type === "income" ? "rgba(22,163,74,0.35)" : "rgba(220,38,38,0.35)"}`,
+    border: `1px solid ${
+      type === "income"
+        ? "rgba(22,163,74,0.35)"
+        : "rgba(220,38,38,0.35)"
+    }`,
     textTransform: "capitalize",
   });
 
   return (
- feature/multi-currency
     <div className="history-page" style={{ padding: 8 }}>
       {/* Header */}
       <div style={{ marginBottom: 10 }}>
         <h2 style={{ margin: 0, color: "#0f172a" }}>Transaction History</h2>
         <p style={{ margin: "6px 0 0 0", color: "#64748b", fontSize: 13 }}>
-          View, export, and edit transactions. Showing converted values in <b>{selectedCurrency}</b>.
+          View, export, and edit transactions. Showing converted values in{" "}
+          <b>{selectedCurrency}</b>.
         </p>
       </div>
 
@@ -275,21 +256,41 @@ function History() {
         }}
       >
         <div style={card}>
-          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 900 }}>Income</div>
-          <div style={{ fontSize: 18, fontWeight: 900, marginTop: 6, color: "#16a34a" }}>
+          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 900 }}>
+            Income
+          </div>
+          <div
+            style={{
+              fontSize: 18,
+              fontWeight: 900,
+              marginTop: 6,
+              color: "#16a34a",
+            }}
+          >
             {money(summary.income)}
           </div>
         </div>
 
         <div style={card}>
-          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 900 }}>Expense</div>
-          <div style={{ fontSize: 18, fontWeight: 900, marginTop: 6, color: "#dc2626" }}>
+          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 900 }}>
+            Expense
+          </div>
+          <div
+            style={{
+              fontSize: 18,
+              fontWeight: 900,
+              marginTop: 6,
+              color: "#dc2626",
+            }}
+          >
             {money(summary.expense)}
           </div>
         </div>
 
         <div style={card}>
-          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 900 }}>Balance</div>
+          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 900 }}>
+            Balance
+          </div>
           <div
             style={{
               fontSize: 18,
@@ -303,17 +304,34 @@ function History() {
         </div>
 
         <div style={card}>
-          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 900 }}>Transactions</div>
-          <div style={{ fontSize: 18, fontWeight: 900, marginTop: 6, color: "#0f172a" }}>
+          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 900 }}>
+            Transactions
+          </div>
+          <div
+            style={{
+              fontSize: 18,
+              fontWeight: 900,
+              marginTop: 6,
+              color: "#0f172a",
+            }}
+          >
             {summary.count}
           </div>
         </div>
       </div>
 
       {/* Top actions */}
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: 10,
+          flexWrap: "wrap",
+        }}
+      >
         <div style={{ color: "#64748b", fontSize: 12 }}>
-          Tip: “Original” shows stored currency. “Converted” uses amountNZD → {selectedCurrency}.
+          Tip: “Original” shows stored currency. “Converted” uses amountNZD →{" "}
+          {selectedCurrency}.
         </div>
 
         <button
@@ -327,6 +345,7 @@ function History() {
             cursor: "pointer",
             fontWeight: 900,
           }}
+          type="button"
         >
           📄 Download PDF
         </button>
@@ -338,30 +357,42 @@ function History() {
           <p style={{ padding: 16, margin: 0 }}>No transactions found.</p>
         ) : (
           <div style={{ overflowX: "auto", maxHeight: 520 }}>
-            <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0 }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "separate",
+                borderSpacing: 0,
+              }}
+            >
               <thead>
                 <tr>
-                  {["Date", "Description", "Category", "Type", "Original", `Converted (${selectedCurrency})`, "Action"].map(
-                    (h) => (
-                      <th
-                        key={h}
-                        style={{
-                          position: "sticky",
-                          top: 0,
-                          zIndex: 2,
-                          background: "#f8fafc",
-                          textAlign: "left",
-                          padding: "12px 14px",
-                          borderBottom: "1px solid #e2e8f0",
-                          fontSize: 12,
-                          fontWeight: 900,
-                          color: "#0f172a",
-                        }}
-                      >
-                        {h}
-                      </th>
-                    )
-                  )}
+                  {[
+                    "Date",
+                    "Description",
+                    "Category",
+                    "Type",
+                    "Original",
+                    `Converted (${selectedCurrency})`,
+                    "Action",
+                  ].map((h) => (
+                    <th
+                      key={h}
+                      style={{
+                        position: "sticky",
+                        top: 0,
+                        zIndex: 2,
+                        background: "#f8fafc",
+                        textAlign: "left",
+                        padding: "12px 14px",
+                        borderBottom: "1px solid #e2e8f0",
+                        fontSize: 12,
+                        fontWeight: 900,
+                        color: "#0f172a",
+                      }}
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
 
@@ -372,25 +403,55 @@ function History() {
                   const displayAmount = toDisplayAmount(t);
 
                   return (
-                    <tr key={t.id} style={{ borderBottom: "1px solid #eef2f7" }}>
-                      <td style={{ padding: "12px 14px", borderBottom: "1px solid #eef2f7", fontSize: 13 }}>
+                    <tr key={t.id}>
+                      <td
+                        style={{
+                          padding: "12px 14px",
+                          borderBottom: "1px solid #eef2f7",
+                          fontSize: 13,
+                        }}
+                      >
                         {formatDate(t.date)}
                       </td>
 
-                      <td style={{ padding: "12px 14px", borderBottom: "1px solid #eef2f7", fontSize: 13 }}>
+                      <td
+                        style={{
+                          padding: "12px 14px",
+                          borderBottom: "1px solid #eef2f7",
+                          fontSize: 13,
+                        }}
+                      >
                         {t.description || "-"}
                       </td>
 
-                      <td style={{ padding: "12px 14px", borderBottom: "1px solid #eef2f7", fontSize: 13 }}>
+                      <td
+                        style={{
+                          padding: "12px 14px",
+                          borderBottom: "1px solid #eef2f7",
+                          fontSize: 13,
+                        }}
+                      >
                         {t.category || "-"}
                       </td>
 
-                      <td style={{ padding: "12px 14px", borderBottom: "1px solid #eef2f7" }}>
+                      <td
+                        style={{
+                          padding: "12px 14px",
+                          borderBottom: "1px solid #eef2f7",
+                        }}
+                      >
                         <span style={badge(t.type)}>{t.type}</span>
                       </td>
 
-                      <td style={{ padding: "12px 14px", borderBottom: "1px solid #eef2f7", fontSize: 13 }}>
-                        {t.type === "income" ? "+" : "-"} {fmt(originalAmount)} {originalCurrency}
+                      <td
+                        style={{
+                          padding: "12px 14px",
+                          borderBottom: "1px solid #eef2f7",
+                          fontSize: 13,
+                        }}
+                      >
+                        {t.type === "income" ? "+" : "-"} {fmt(originalAmount)}{" "}
+                        {originalCurrency}
                       </td>
 
                       <td
@@ -402,10 +463,16 @@ function History() {
                           color: t.type === "income" ? "#16a34a" : "#dc2626",
                         }}
                       >
-                        {t.type === "income" ? "+" : "-"} {fmt(displayAmount)} {selectedCurrency}
+                        {t.type === "income" ? "+" : "-"} {fmt(displayAmount)}{" "}
+                        {selectedCurrency}
                       </td>
 
-                      <td style={{ padding: "12px 14px", borderBottom: "1px solid #eef2f7" }}>
+                      <td
+                        style={{
+                          padding: "12px 14px",
+                          borderBottom: "1px solid #eef2f7",
+                        }}
+                      >
                         <button
                           onClick={() => openEditPopup(t)}
                           style={{
@@ -417,6 +484,7 @@ function History() {
                             cursor: "pointer",
                             fontWeight: 900,
                           }}
+                          type="button"
                         >
                           Edit
                         </button>
@@ -443,6 +511,7 @@ function History() {
             zIndex: 999,
             padding: 16,
           }}
+          onClick={() => setEditing(false)}
         >
           <div
             style={{
@@ -453,8 +522,16 @@ function History() {
               padding: 16,
               boxShadow: "0px 20px 50px rgba(0,0,0,0.25)",
             }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 10,
+                alignItems: "center",
+              }}
+            >
               <h3 style={{ margin: 0, color: "#0f172a" }}>Edit Transaction</h3>
               <button
                 onClick={() => setEditing(false)}
@@ -466,18 +543,32 @@ function History() {
                   cursor: "pointer",
                   fontWeight: 900,
                 }}
+                type="button"
               >
                 ✕
               </button>
             </div>
 
-            <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div
+              style={{
+                marginTop: 12,
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 10,
+              }}
+            >
               <div style={{ gridColumn: "1 / -1" }}>
-                <label style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}>Description</label>
+                <label
+                  style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}
+                >
+                  Description
+                </label>
                 <input
                   type="text"
                   value={editData.description}
-                  onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                  onChange={(e) =>
+                    setEditData({ ...editData, description: e.target.value })
+                  }
                   placeholder="Description"
                   style={{
                     width: "100%",
@@ -490,11 +581,17 @@ function History() {
               </div>
 
               <div>
-                <label style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}>Amount</label>
+                <label
+                  style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}
+                >
+                  Amount
+                </label>
                 <input
                   type="number"
                   value={editData.amount}
-                  onChange={(e) => setEditData({ ...editData, amount: e.target.value })}
+                  onChange={(e) =>
+                    setEditData({ ...editData, amount: e.target.value })
+                  }
                   placeholder="Amount"
                   style={{
                     width: "100%",
@@ -507,7 +604,11 @@ function History() {
               </div>
 
               <div>
-                <label style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}>Currency (stored)</label>
+                <label
+                  style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}
+                >
+                  Currency (stored)
+                </label>
                 <input
                   type="text"
                   value={editData.currency}
@@ -524,10 +625,16 @@ function History() {
               </div>
 
               <div>
-                <label style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}>Type</label>
+                <label
+                  style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}
+                >
+                  Type
+                </label>
                 <select
                   value={editData.type}
-                  onChange={(e) => setEditData({ ...editData, type: e.target.value })}
+                  onChange={(e) =>
+                    setEditData({ ...editData, type: e.target.value })
+                  }
                   style={{
                     width: "100%",
                     padding: 10,
@@ -543,11 +650,17 @@ function History() {
               </div>
 
               <div>
-                <label style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}>Category</label>
+                <label
+                  style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}
+                >
+                  Category
+                </label>
                 <input
                   type="text"
                   value={editData.category}
-                  onChange={(e) => setEditData({ ...editData, category: e.target.value })}
+                  onChange={(e) =>
+                    setEditData({ ...editData, category: e.target.value })
+                  }
                   placeholder="Category"
                   style={{
                     width: "100%",
@@ -560,11 +673,17 @@ function History() {
               </div>
 
               <div style={{ gridColumn: "1 / -1" }}>
-                <label style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}>Date</label>
+                <label
+                  style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}
+                >
+                  Date
+                </label>
                 <input
                   type="date"
                   value={editData.date}
-                  onChange={(e) => setEditData({ ...editData, date: e.target.value })}
+                  onChange={(e) =>
+                    setEditData({ ...editData, date: e.target.value })
+                  }
                   style={{
                     width: "100%",
                     padding: 10,
@@ -589,6 +708,7 @@ function History() {
                   borderRadius: 12,
                   cursor: "pointer",
                 }}
+                type="button"
               >
                 Save Changes
               </button>
@@ -605,6 +725,7 @@ function History() {
                   borderRadius: 12,
                   cursor: "pointer",
                 }}
+                type="button"
               >
                 Cancel
               </button>
@@ -621,72 +742,6 @@ function History() {
           }
         }
       `}</style>
- 
-    <div className="history-wrap">
-      <div className="history-head">
-        <div>
-          <h2 className="history-title">Expense History</h2>
-          <p className="history-subtitle">
-            View and filter all your past expenses and incomes.
-          </p>
-        </div>
-      </div>
-
-      <div className="history-toolbar">
-        <div className="history-tools-left">
-          <input
-            className="history-search"
-            placeholder="Search..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-
-          <select
-            className="history-select"
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-          >
-            <option value="all">All</option>
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="history-table-card">
-        <div className="history-table-scroll">
-          <table className="history-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Category</th>
-                <th style={{ textAlign: "right" }}>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTransactions.map((t) => (
-                <tr key={t.id}>
-                  <td>{t.date}</td>
-                  <td>{t.description}</td>
-                  <td>{t.category}</td>
-                  <td style={{ textAlign: "right" }}>
-                    <span
-                      className={`amount-pill ${
-                        t.type === "income" ? "income" : "expense"
-                      }`}
-                    >
-                      {t.type === "income" ? "+" : "-"}$
-                      {Number(t.amount).toFixed(2)}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-  main
     </div>
   );
 }

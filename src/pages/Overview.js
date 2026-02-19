@@ -1,11 +1,4 @@
-  feature/multi-currency
 import React, { useMemo, useState } from "react";
- 
-import React, { useEffect, useMemo, useState } from "react";
-import { db, auth } from "../firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
-  main
-
 import {
   Chart as ChartJS,
   ArcElement,
@@ -17,7 +10,6 @@ import {
   PointElement,
   BarElement,
 } from "chart.js";
-
 import { Doughnut, Line, Bar } from "react-chartjs-2";
 
 ChartJS.register(
@@ -31,12 +23,16 @@ ChartJS.register(
   BarElement
 );
 
-function Overview({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD" }) {
+function Overview({
+  transactions = [],
+  exchangeRate = 1,
+  selectedCurrency = "NZD",
+}) {
   const [filterType, setFilterType] = useState("monthly");
   const [customStart, setCustomStart] = useState("");
   const [customEnd, setCustomEnd] = useState("");
 
-  feature/multi-currency
+  // ---------- helpers ----------
   const safeNumber = (val) => {
     if (val == null) return 0;
     if (typeof val === "number") return val;
@@ -56,82 +52,44 @@ function Overview({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD
 
   /**
    * ✅ True multi-currency:
-   * Prefer amountNZD (normalized base) if available.
-   * Else fallback to old amount.
-   * Then convert NZD -> selectedCurrency using exchangeRate.
+   * Use amountNZD (base) if present; else fallback to amount.
+   * Convert NZD -> selectedCurrency using exchangeRate.
    */
   const toDisplayAmount = (t) => {
     const baseNZD =
       t?.amountNZD != null ? safeNumber(t.amountNZD) : safeNumber(t.amount);
     return baseNZD * (exchangeRate || 1);
- 
-  useEffect(() => {
-    const loadTransactions = async () => {
-      const user = auth.currentUser;
-      if (!user) return;
-
-      const q = query(collection(db, "transactions"), where("uid", "==", user.uid));
-      const snap = await getDocs(q);
-      const list = snap.docs.map((d) => d.data());
-      setTransactions(list);
-    };
-
-    loadTransactions();
-  }, []);
-
-  // ---------- helpers ----------
-  const toNumber = (val) => {
-    if (val === null || val === undefined) return 0;
-    const s = String(val);
-    const cleaned = s.replace(/[^0-9.]/g, ""); // removes $, +, -, text
-    const n = parseFloat(cleaned);
-    return Number.isFinite(n) ? n : 0;
   };
 
-  const getDateObj = (d) => {
-    if (!d) return null;
-    if (typeof d?.toDate === "function") return d.toDate(); // Firestore timestamp
-    return new Date(d);
-  };
+  const money = (n) => `${Number(n || 0).toFixed(2)} ${selectedCurrency}`;
 
-  // ---------- chart options (responsive) ----------
+  // ---------- chart options ----------
   const commonOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
-        position: "top",
-        labels: { boxWidth: 14, boxHeight: 14 },
-      },
+      legend: { position: "top" },
       tooltip: { enabled: true },
     },
   };
 
   const lineOptions = {
     ...commonOptions,
-    scales: {
-      y: { beginAtZero: true },
-    },
+    scales: { y: { beginAtZero: true } },
   };
 
   const barOptions = {
     ...commonOptions,
-    scales: {
-      y: { beginAtZero: true },
-    },
+    scales: { y: { beginAtZero: true } },
   };
 
   const doughnutOptions = {
     ...commonOptions,
     cutout: "60%",
- main
   };
 
-  const money = (n) =>
-    `${Number(n || 0).toFixed(2)} ${selectedCurrency}`;
-
   // ==========================
-  // SUMMARY CARDS (Income/Expense/Balance)
+  // SUMMARY
   // ==========================
   const summary = useMemo(() => {
     const income = transactions
@@ -142,12 +100,8 @@ function Overview({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD
       .filter((t) => t.type === "expense")
       .reduce((sum, t) => sum + toDisplayAmount(t), 0);
 
-    return {
-      income,
-      expense,
-      balance: income - expense,
-    };
-  }, [transactions, exchangeRate]);
+    return { income, expense, balance: income - expense };
+  }, [transactions, exchangeRate, selectedCurrency]);
 
   // ===================================
   // WEEKLY DATA (Bar)
@@ -157,90 +111,68 @@ function Overview({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD
     const totals = new Array(7).fill(0);
 
     transactions.forEach((t) => {
-  feature/multi-currency
       const d = toDateObj(t.date);
+      if (!d || isNaN(d.getTime())) return;
+
       const day = d.getDay(); // 0 Sun ... 6 Sat
       const i = day === 0 ? 6 : day - 1;
       totals[i] += toDisplayAmount(t);
- 
-      const d = getDateObj(t.date);
-      if (!d || isNaN(d.getTime())) return;
-
-      const day = d.getDay(); // 0 = Sun
-      const i = day === 0 ? 6 : day - 1;
-      totals[i] += toNumber(t.amount);
- main
     });
 
     return {
       labels: weekLabels,
       datasets: [
         {
-feature/multi-currency
           label: `Weekly Total (${selectedCurrency})`,
           data: totals.map((x) => Number(x.toFixed(2))),
-          backgroundColor: "#4c8bf5",
-        },
-      ],
-    };
-  }, [transactions, exchangeRate, selectedCurrency]);
- 
-          label: "Weekly Total ($)",
-          data: totals,
           backgroundColor: "rgba(15, 118, 110, 0.75)",
           borderRadius: 10,
         },
       ],
     };
-  }, [transactions]);
-  main
+  }, [transactions, exchangeRate, selectedCurrency]);
 
   // ===================================
   // MONTHLY DATA (Line)
   // ===================================
   const monthlyData = useMemo(() => {
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     const totals = new Array(12).fill(0);
 
     transactions.forEach((t) => {
-  feature/multi-currency
       const d = toDateObj(t.date);
-      totals[d.getMonth()] += toDisplayAmount(t);
- 
-      const d = getDateObj(t.date);
       if (!d || isNaN(d.getTime())) return;
-      totals[d.getMonth()] += toNumber(t.amount);
- main
+      totals[d.getMonth()] += toDisplayAmount(t);
     });
 
     return {
       labels: months,
       datasets: [
         {
- feature/multi-currency
           label: `Monthly Total (${selectedCurrency})`,
           data: totals.map((x) => Number(x.toFixed(2))),
-          borderColor: "#4c8bf5",
-          backgroundColor: "rgba(76,139,245,0.2)",
+          borderColor: "rgba(15, 118, 110, 1)",
+          backgroundColor: "rgba(15, 118, 110, 0.15)",
           tension: 0.35,
           fill: true,
+          pointRadius: 2,
         },
       ],
     };
   }, [transactions, exchangeRate, selectedCurrency]);
- 
-          label: "Monthly Total ($)",
-          data: totals,
-          borderColor: "rgba(15, 118, 110, 1)",
-          backgroundColor: "rgba(15, 118, 110, 0.15)",
-          tension: 0.4,
-          fill: true,
-          pointRadius: 3,
-        },
-      ],
-    };
-  }, [transactions]);
- main
 
   // ===================================
   // CUSTOM RANGE DATA (Line)
@@ -252,89 +184,66 @@ feature/multi-currency
     const end = new Date(customEnd);
     if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
 
- feature/multi-currency
-    const filtered = transactions.filter((t) => {
-      const d = toDateObj(t.date);
-      return d >= start && d <= end;
-    });
+    // include full end day
+    end.setHours(23, 59, 59, 999);
 
-    const labels = filtered.map((t) => toDateObj(t.date).toLocaleDateString());
-    const amounts = filtered.map((t) => toDisplayAmount(t));
- 
     const filtered = transactions
-      .map((t) => ({ ...t, _d: getDateObj(t.date) }))
+      .map((t) => ({ ...t, _d: toDateObj(t.date) }))
       .filter((t) => t._d && !isNaN(t._d.getTime()))
       .filter((t) => t._d >= start && t._d <= end)
       .sort((a, b) => a._d - b._d);
 
     const labels = filtered.map((t) => t._d.toLocaleDateString());
-    const amounts = filtered.map((t) => toNumber(t.amount));
- main
+    const amounts = filtered.map((t) => toDisplayAmount(t));
 
     return {
       labels,
       datasets: [
         {
- feature/multi-currency
           label: `Custom Range (${selectedCurrency})`,
           data: amounts.map((x) => Number(x.toFixed(2))),
-          borderColor: "#7c4dff",
-          backgroundColor: "rgba(124,77,255,0.2)",
+          borderColor: "rgba(124, 77, 255, 1)",
+          backgroundColor: "rgba(124, 77, 255, 0.12)",
           tension: 0.3,
           fill: true,
+          pointRadius: 2,
         },
       ],
     };
   }, [customStart, customEnd, transactions, exchangeRate, selectedCurrency]);
 
   // ===================================
-  // PIE CHART (CATEGORY-WISE EXPENSES)
-  // ===================================
-  const pieData = useMemo(() => {
-    const categories = ["Grocery","Shopping","Medicine","Other","Rent","Transport"];
- 
-          label: "Custom Range ($)",
-          data: amounts,
-          borderColor: "rgba(124, 77, 255, 1)",
-          backgroundColor: "rgba(124, 77, 255, 0.12)",
-          tension: 0.35,
-          fill: true,
-          pointRadius: 2,
-        },
-      ],
-    };
-  }, [transactions, customStart, customEnd]);
-
-  // ===================================
-  // CATEGORY (Doughnut)
+  // CATEGORY DOUGHNUT
   // ===================================
   const doughnutData = useMemo(() => {
-    const categories = ["Grocery", "Shopping", "Medicine", "Other"];
- main
+    const categories = ["Grocery", "Shopping", "Medicine", "Other", "Rent", "Transport"];
 
     const totals = categories.map((cat) =>
       transactions
         .filter((t) => t.category === cat && t.type === "expense")
- feature/multi-currency
         .reduce((sum, t) => sum + toDisplayAmount(t), 0)
- 
-        .reduce((sum, t) => sum + toNumber(t.amount), 0)
- main
     );
 
     return {
       labels: categories,
       datasets: [
         {
- feature/multi-currency
           data: totals.map((x) => Number(x.toFixed(2))),
-          backgroundColor: ["#ff6b81","#4c8bf5","#ffd66b","#2ed573","#ffa502","#3742fa"],
+          backgroundColor: [
+            "rgba(255, 107, 129, 0.85)",
+            "rgba(76, 139, 245, 0.85)",
+            "rgba(255, 214, 107, 0.85)",
+            "rgba(46, 213, 115, 0.85)",
+            "rgba(255, 165, 2, 0.85)",
+            "rgba(55, 66, 250, 0.85)",
+          ],
+          borderWidth: 0,
         },
       ],
     };
   }, [transactions, exchangeRate, selectedCurrency]);
 
-  // Small shared styles (clean, not heavy)
+  // ---------- UI styles ----------
   const pillBtn = (active) => ({
     padding: "10px 14px",
     borderRadius: 999,
@@ -364,7 +273,7 @@ feature/multi-currency
         </p>
       </div>
 
-      {/* ✅ Summary Cards */}
+      {/* Summary Cards */}
       <div
         style={{
           display: "grid",
@@ -374,21 +283,27 @@ feature/multi-currency
         }}
       >
         <div style={card}>
-          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 800 }}>Total Income</div>
+          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 800 }}>
+            Total Income
+          </div>
           <div style={{ fontSize: 22, fontWeight: 900, marginTop: 6, color: "#16a34a" }}>
             {money(summary.income)}
           </div>
         </div>
 
         <div style={card}>
-          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 800 }}>Total Expense</div>
+          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 800 }}>
+            Total Expense
+          </div>
           <div style={{ fontSize: 22, fontWeight: 900, marginTop: 6, color: "#dc2626" }}>
             {money(summary.expense)}
           </div>
         </div>
 
         <div style={card}>
-          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 800 }}>Balance</div>
+          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 800 }}>
+            Balance
+          </div>
           <div
             style={{
               fontSize: 22,
@@ -412,13 +327,13 @@ feature/multi-currency
           margin: "10px 0 14px 0",
         }}
       >
-        <button onClick={() => setFilterType("weekly")} style={pillBtn(filterType === "weekly")}>
+        <button type="button" onClick={() => setFilterType("weekly")} style={pillBtn(filterType === "weekly")}>
           Weekly
         </button>
-        <button onClick={() => setFilterType("monthly")} style={pillBtn(filterType === "monthly")}>
+        <button type="button" onClick={() => setFilterType("monthly")} style={pillBtn(filterType === "monthly")}>
           Monthly
         </button>
-        <button onClick={() => setFilterType("custom")} style={pillBtn(filterType === "custom")}>
+        <button type="button" onClick={() => setFilterType("custom")} style={pillBtn(filterType === "custom")}>
           Custom Range
         </button>
 
@@ -428,27 +343,19 @@ feature/multi-currency
               type="date"
               value={customStart}
               onChange={(e) => setCustomStart(e.target.value)}
-              style={{
-                padding: "10px",
-                borderRadius: 10,
-                border: "1px solid #dbe3ea",
-              }}
+              style={{ padding: "10px", borderRadius: 10, border: "1px solid #dbe3ea" }}
             />
             <input
               type="date"
               value={customEnd}
               onChange={(e) => setCustomEnd(e.target.value)}
-              style={{
-                padding: "10px",
-                borderRadius: 10,
-                border: "1px solid #dbe3ea",
-              }}
+              style={{ padding: "10px", borderRadius: 10, border: "1px solid #dbe3ea" }}
             />
           </div>
         )}
       </div>
 
-      {/* ✅ Chart Grid */}
+      {/* Charts */}
       <div
         style={{
           display: "grid",
@@ -457,17 +364,15 @@ feature/multi-currency
           alignItems: "start",
         }}
       >
-        {/* Pie Card */}
         <div style={card}>
           <div style={{ fontWeight: 900, marginBottom: 10, color: "#0f172a" }}>
             Spending by Category ({selectedCurrency})
           </div>
-          <div style={{ width: "100%", maxWidth: 420, margin: "0 auto" }}>
-            <Pie data={pieData} />
+          <div style={{ height: 320 }}>
+            <Doughnut data={doughnutData} options={doughnutOptions} />
           </div>
         </div>
 
-        {/* Trend Card */}
         <div style={card}>
           <div style={{ fontWeight: 900, marginBottom: 10, color: "#0f172a" }}>
             {filterType === "weekly"
@@ -477,23 +382,20 @@ feature/multi-currency
               : "Custom Date Range"}
           </div>
 
-          {filterType === "weekly" && <Bar data={weeklyData} />}
-          {filterType === "monthly" && <Line data={monthlyData} />}
-          {filterType === "custom" && customStart && customEnd && customData && (
-            <Line data={customData} />
-          )}
+          <div style={{ height: 320 }}>
+            {filterType === "weekly" && <Bar data={weeklyData} options={barOptions} />}
+            {filterType === "monthly" && <Line data={monthlyData} options={lineOptions} />}
+            {filterType === "custom" && customStart && customEnd && customData && (
+              <Line data={customData} options={lineOptions} />
+            )}
 
-          {filterType === "custom" && (!customStart || !customEnd) && (
-            <p style={{ color: "#64748b", fontSize: 13 }}>
-              Select a start and end date to view custom analytics.
-            </p>
-          )}
+            {filterType === "custom" && (!customStart || !customEnd) && (
+              <p style={{ color: "#64748b", fontSize: 13 }}>
+                Select a start and end date to view custom analytics.
+              </p>
+            )}
+          </div>
         </div>
-      </div>
-
-      {/* Responsive fallback */}
-      <div style={{ marginTop: 14, color: "#64748b", fontSize: 12 }}>
-        Tip: Add more transactions in different currencies to see analytics update.
       </div>
 
       <style>{`
@@ -508,116 +410,6 @@ feature/multi-currency
           }
         }
       `}</style>
- 
-          data: totals,
-          backgroundColor: [
-            "rgba(255, 107, 129, 0.85)",
-            "rgba(76, 139, 245, 0.85)",
-            "rgba(255, 214, 107, 0.85)",
-            "rgba(46, 213, 115, 0.85)",
-          ],
-          borderWidth: 0,
-        },
-      ],
-    };
-  }, [transactions]);
-
-  // choose main chart based on filter
-  const mainChart = useMemo(() => {
-    if (filterType === "weekly") {
-      return { title: "Weekly Summary", type: "bar", data: weeklyData };
-    }
-    if (filterType === "custom") {
-      return { title: "Custom Date Range", type: "line", data: customData };
-    }
-    return { title: "Monthly Summary", type: "line", data: monthlyData };
-  }, [filterType, weeklyData, monthlyData, customData]);
-
-  return (
-    <div className="overview-section">
-      <div style={{ textAlign: "left" }}>
-        <h2 style={{ margin: 0, color: "#0b3b3a" }}>Overview</h2>
-        <p style={{ marginTop: 6, color: "#5b6b6b" }}>
-          Choose a view to see your spending and trends.
-        </p>
-      </div>
-
-      {/* FILTERS */}
-      <div className="filter-bar">
-        <div className="quick-filters">
-          <button
-            type="button"
-            onClick={() => setFilterType("weekly")}
-            className={filterType === "weekly" ? "active-filter" : ""}
-          >
-            Weekly
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setFilterType("monthly")}
-            className={filterType === "monthly" ? "active-filter" : ""}
-          >
-            Monthly
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setFilterType("custom")}
-            className={filterType === "custom" ? "active-filter" : ""}
-          >
-            Custom Range
-          </button>
-        </div>
-
-        {filterType === "custom" && (
-          <div className="date-range">
-            <input
-              type="date"
-              value={customStart}
-              onChange={(e) => setCustomStart(e.target.value)}
-            />
-            <input
-              type="date"
-              value={customEnd}
-              onChange={(e) => setCustomEnd(e.target.value)}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* CHARTS (vertical stack) */}
-      <div className="chart-container">
-        {/* Doughnut */}
-        <div className="pie-chart">
-          <h3 style={{ marginTop: 0 }}>Spending by Category</h3>
-          <div className="chart-box">
-            <Doughnut data={doughnutData} options={doughnutOptions} />
-          </div>
-        </div>
-
-        {/* Main chart */}
-        <div className="line-chart">
-          <h3 style={{ marginTop: 0 }}>{mainChart.title}</h3>
-
-          <div className="chart-box">
-            {mainChart.type === "bar" && (
-              <Bar data={mainChart.data} options={barOptions} />
-            )}
-
-            {mainChart.type === "line" && mainChart.data && (
-              <Line data={mainChart.data} options={lineOptions} />
-            )}
-
-            {mainChart.type === "line" && !mainChart.data && (
-              <div style={{ padding: 14, color: "#5b6b6b" }}>
-                Select start and end date to view the chart.
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-  main
     </div>
   );
 }
