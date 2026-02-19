@@ -1,4 +1,10 @@
+  feature/multi-currency
 import React, { useMemo, useState } from "react";
+ 
+import React, { useEffect, useMemo, useState } from "react";
+import { db, auth } from "../firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
+  main
 
 import {
   Chart as ChartJS,
@@ -12,7 +18,7 @@ import {
   BarElement,
 } from "chart.js";
 
-import { Pie, Line, Bar } from "react-chartjs-2";
+import { Doughnut, Line, Bar } from "react-chartjs-2";
 
 ChartJS.register(
   ArcElement,
@@ -30,6 +36,7 @@ function Overview({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD
   const [customStart, setCustomStart] = useState("");
   const [customEnd, setCustomEnd] = useState("");
 
+  feature/multi-currency
   const safeNumber = (val) => {
     if (val == null) return 0;
     if (typeof val === "number") return val;
@@ -57,6 +64,67 @@ function Overview({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD
     const baseNZD =
       t?.amountNZD != null ? safeNumber(t.amountNZD) : safeNumber(t.amount);
     return baseNZD * (exchangeRate || 1);
+ 
+  useEffect(() => {
+    const loadTransactions = async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const q = query(collection(db, "transactions"), where("uid", "==", user.uid));
+      const snap = await getDocs(q);
+      const list = snap.docs.map((d) => d.data());
+      setTransactions(list);
+    };
+
+    loadTransactions();
+  }, []);
+
+  // ---------- helpers ----------
+  const toNumber = (val) => {
+    if (val === null || val === undefined) return 0;
+    const s = String(val);
+    const cleaned = s.replace(/[^0-9.]/g, ""); // removes $, +, -, text
+    const n = parseFloat(cleaned);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  const getDateObj = (d) => {
+    if (!d) return null;
+    if (typeof d?.toDate === "function") return d.toDate(); // Firestore timestamp
+    return new Date(d);
+  };
+
+  // ---------- chart options (responsive) ----------
+  const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top",
+        labels: { boxWidth: 14, boxHeight: 14 },
+      },
+      tooltip: { enabled: true },
+    },
+  };
+
+  const lineOptions = {
+    ...commonOptions,
+    scales: {
+      y: { beginAtZero: true },
+    },
+  };
+
+  const barOptions = {
+    ...commonOptions,
+    scales: {
+      y: { beginAtZero: true },
+    },
+  };
+
+  const doughnutOptions = {
+    ...commonOptions,
+    cutout: "60%",
+ main
   };
 
   const money = (n) =>
@@ -82,23 +150,33 @@ function Overview({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD
   }, [transactions, exchangeRate]);
 
   // ===================================
-  // WEEKLY DATA
+  // WEEKLY DATA (Bar)
   // ===================================
   const weeklyData = useMemo(() => {
     const weekLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const totals = new Array(7).fill(0);
 
     transactions.forEach((t) => {
+  feature/multi-currency
       const d = toDateObj(t.date);
       const day = d.getDay(); // 0 Sun ... 6 Sat
       const i = day === 0 ? 6 : day - 1;
       totals[i] += toDisplayAmount(t);
+ 
+      const d = getDateObj(t.date);
+      if (!d || isNaN(d.getTime())) return;
+
+      const day = d.getDay(); // 0 = Sun
+      const i = day === 0 ? 6 : day - 1;
+      totals[i] += toNumber(t.amount);
+ main
     });
 
     return {
       labels: weekLabels,
       datasets: [
         {
+feature/multi-currency
           label: `Weekly Total (${selectedCurrency})`,
           data: totals.map((x) => Number(x.toFixed(2))),
           backgroundColor: "#4c8bf5",
@@ -106,23 +184,40 @@ function Overview({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD
       ],
     };
   }, [transactions, exchangeRate, selectedCurrency]);
+ 
+          label: "Weekly Total ($)",
+          data: totals,
+          backgroundColor: "rgba(15, 118, 110, 0.75)",
+          borderRadius: 10,
+        },
+      ],
+    };
+  }, [transactions]);
+  main
 
   // ===================================
-  // MONTHLY DATA
+  // MONTHLY DATA (Line)
   // ===================================
   const monthlyData = useMemo(() => {
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     const totals = new Array(12).fill(0);
 
     transactions.forEach((t) => {
+  feature/multi-currency
       const d = toDateObj(t.date);
       totals[d.getMonth()] += toDisplayAmount(t);
+ 
+      const d = getDateObj(t.date);
+      if (!d || isNaN(d.getTime())) return;
+      totals[d.getMonth()] += toNumber(t.amount);
+ main
     });
 
     return {
       labels: months,
       datasets: [
         {
+ feature/multi-currency
           label: `Monthly Total (${selectedCurrency})`,
           data: totals.map((x) => Number(x.toFixed(2))),
           borderColor: "#4c8bf5",
@@ -133,16 +228,31 @@ function Overview({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD
       ],
     };
   }, [transactions, exchangeRate, selectedCurrency]);
+ 
+          label: "Monthly Total ($)",
+          data: totals,
+          borderColor: "rgba(15, 118, 110, 1)",
+          backgroundColor: "rgba(15, 118, 110, 0.15)",
+          tension: 0.4,
+          fill: true,
+          pointRadius: 3,
+        },
+      ],
+    };
+  }, [transactions]);
+ main
 
   // ===================================
-  // CUSTOM DATE RANGE DATA
+  // CUSTOM RANGE DATA (Line)
   // ===================================
   const customData = useMemo(() => {
     if (!customStart || !customEnd) return null;
 
     const start = new Date(customStart);
     const end = new Date(customEnd);
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
 
+ feature/multi-currency
     const filtered = transactions.filter((t) => {
       const d = toDateObj(t.date);
       return d >= start && d <= end;
@@ -150,11 +260,22 @@ function Overview({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD
 
     const labels = filtered.map((t) => toDateObj(t.date).toLocaleDateString());
     const amounts = filtered.map((t) => toDisplayAmount(t));
+ 
+    const filtered = transactions
+      .map((t) => ({ ...t, _d: getDateObj(t.date) }))
+      .filter((t) => t._d && !isNaN(t._d.getTime()))
+      .filter((t) => t._d >= start && t._d <= end)
+      .sort((a, b) => a._d - b._d);
+
+    const labels = filtered.map((t) => t._d.toLocaleDateString());
+    const amounts = filtered.map((t) => toNumber(t.amount));
+ main
 
     return {
       labels,
       datasets: [
         {
+ feature/multi-currency
           label: `Custom Range (${selectedCurrency})`,
           data: amounts.map((x) => Number(x.toFixed(2))),
           borderColor: "#7c4dff",
@@ -171,17 +292,41 @@ function Overview({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD
   // ===================================
   const pieData = useMemo(() => {
     const categories = ["Grocery","Shopping","Medicine","Other","Rent","Transport"];
+ 
+          label: "Custom Range ($)",
+          data: amounts,
+          borderColor: "rgba(124, 77, 255, 1)",
+          backgroundColor: "rgba(124, 77, 255, 0.12)",
+          tension: 0.35,
+          fill: true,
+          pointRadius: 2,
+        },
+      ],
+    };
+  }, [transactions, customStart, customEnd]);
+
+  // ===================================
+  // CATEGORY (Doughnut)
+  // ===================================
+  const doughnutData = useMemo(() => {
+    const categories = ["Grocery", "Shopping", "Medicine", "Other"];
+ main
 
     const totals = categories.map((cat) =>
       transactions
         .filter((t) => t.category === cat && t.type === "expense")
+ feature/multi-currency
         .reduce((sum, t) => sum + toDisplayAmount(t), 0)
+ 
+        .reduce((sum, t) => sum + toNumber(t.amount), 0)
+ main
     );
 
     return {
       labels: categories,
       datasets: [
         {
+ feature/multi-currency
           data: totals.map((x) => Number(x.toFixed(2))),
           backgroundColor: ["#ff6b81","#4c8bf5","#ffd66b","#2ed573","#ffa502","#3742fa"],
         },
@@ -363,6 +508,116 @@ function Overview({ transactions = [], exchangeRate = 1, selectedCurrency = "NZD
           }
         }
       `}</style>
+ 
+          data: totals,
+          backgroundColor: [
+            "rgba(255, 107, 129, 0.85)",
+            "rgba(76, 139, 245, 0.85)",
+            "rgba(255, 214, 107, 0.85)",
+            "rgba(46, 213, 115, 0.85)",
+          ],
+          borderWidth: 0,
+        },
+      ],
+    };
+  }, [transactions]);
+
+  // choose main chart based on filter
+  const mainChart = useMemo(() => {
+    if (filterType === "weekly") {
+      return { title: "Weekly Summary", type: "bar", data: weeklyData };
+    }
+    if (filterType === "custom") {
+      return { title: "Custom Date Range", type: "line", data: customData };
+    }
+    return { title: "Monthly Summary", type: "line", data: monthlyData };
+  }, [filterType, weeklyData, monthlyData, customData]);
+
+  return (
+    <div className="overview-section">
+      <div style={{ textAlign: "left" }}>
+        <h2 style={{ margin: 0, color: "#0b3b3a" }}>Overview</h2>
+        <p style={{ marginTop: 6, color: "#5b6b6b" }}>
+          Choose a view to see your spending and trends.
+        </p>
+      </div>
+
+      {/* FILTERS */}
+      <div className="filter-bar">
+        <div className="quick-filters">
+          <button
+            type="button"
+            onClick={() => setFilterType("weekly")}
+            className={filterType === "weekly" ? "active-filter" : ""}
+          >
+            Weekly
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setFilterType("monthly")}
+            className={filterType === "monthly" ? "active-filter" : ""}
+          >
+            Monthly
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setFilterType("custom")}
+            className={filterType === "custom" ? "active-filter" : ""}
+          >
+            Custom Range
+          </button>
+        </div>
+
+        {filterType === "custom" && (
+          <div className="date-range">
+            <input
+              type="date"
+              value={customStart}
+              onChange={(e) => setCustomStart(e.target.value)}
+            />
+            <input
+              type="date"
+              value={customEnd}
+              onChange={(e) => setCustomEnd(e.target.value)}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* CHARTS (vertical stack) */}
+      <div className="chart-container">
+        {/* Doughnut */}
+        <div className="pie-chart">
+          <h3 style={{ marginTop: 0 }}>Spending by Category</h3>
+          <div className="chart-box">
+            <Doughnut data={doughnutData} options={doughnutOptions} />
+          </div>
+        </div>
+
+        {/* Main chart */}
+        <div className="line-chart">
+          <h3 style={{ marginTop: 0 }}>{mainChart.title}</h3>
+
+          <div className="chart-box">
+            {mainChart.type === "bar" && (
+              <Bar data={mainChart.data} options={barOptions} />
+            )}
+
+            {mainChart.type === "line" && mainChart.data && (
+              <Line data={mainChart.data} options={lineOptions} />
+            )}
+
+            {mainChart.type === "line" && !mainChart.data && (
+              <div style={{ padding: 14, color: "#5b6b6b" }}>
+                Select start and end date to view the chart.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+  main
     </div>
   );
 }
