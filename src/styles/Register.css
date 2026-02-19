@@ -1,0 +1,232 @@
+
+/* Login.css & Register.css */
+.login-page, .register-page, .reset-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f9fafb;
+}
+
+.login-container, .register-container, .reset-container {
+  background: white;
+  padding: 2rem 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  width: 350px;
+  text-align: center;
+}
+
+.login-container h2, .register-container h2, .reset-container h2 {
+  margin-bottom: 1.5rem;
+  color: #1f2937;
+}
+
+input {
+  width: 100%;
+  padding: 0.7rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  font-size: 1rem;
+}
+
+input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+}
+
+button {
+  width: 100%;
+  padding: 0.7rem;
+  border: none;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #2563eb;
+}
+
+.login-links, .register-container p {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.login-links a, .register-container a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.login-links a:hover, .register-container a:hover {
+  text-decoration: underline;
+}
+ 
+.register-page {
+  height: 100vh;
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Poppins", sans-serif;
+}
+
+.register-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  width: 420px;
+  padding: 40px 35px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.register-card:hover {
+  transform: translateY(-4px);
+}
+
+.register-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #004d40;
+  margin-bottom: 8px;
+}
+
+.register-subtitle {
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 25px;
+}
+
+.register-form input {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  transition: box-shadow 0.3s ease;
+}
+
+.register-form input:focus {
+  outline: none;
+  box-shadow: 0 0 6px #00bfa5;
+}
+
+.name-group {
+  display: flex;
+  gap: 10px;
+}
+
+.name-group input {
+  flex: 1;
+}
+
+/* Primary Sign Up Button */
+.primary-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  background: linear-gradient(90deg, #00796b 0%, #26a69a 100%);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 150, 136, 0.4);
+}
+
+/* Google Button (same size as Sign Up) */
+.google-btn-container {
+  width: 100%;
+  margin-top: 15px;
+}
+
+.google-btn {
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.google-btn img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  margin-right: 8px;
+}
+
+.google-btn:hover {
+  background: #f5f5f5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.register-footer {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.register-footer a {
+  color: #00796b;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.register-footer a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .register-card {
+    width: 90%;
+    padding: 30px 20px;
+  }
+
+  .name-group {
+    flex-direction: column;
+  }
+}
+  /* Back to Home link at bottom */
+.back-home-link {
+  margin-top: 12px;
+}
+
+.back-home-link a {
+  font-size: 0.95rem;
+  color: #00796b;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.back-home-link a:hover {
+  color: #00594f;
+  text-decoration: underline;
+}
