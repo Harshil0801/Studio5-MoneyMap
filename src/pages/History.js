@@ -6,7 +6,7 @@ import { db } from "../firebase";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-// import { getRatesTable } from "../utils/exchangeRateService";
+import { getRatesTable } from "../utils/exchangeRateService";
 
 function History({
   transactions = [],

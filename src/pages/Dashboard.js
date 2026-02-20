@@ -7,12 +7,22 @@ import AddTransaction from "./AddTransaction";
 import WeeklyReport from "./WeeklyReport";
 import GenerateQR from "./GenerateQR";
 import MonthlyBudget from "../components/MonthlyBudget";
+import CurrencyConverterWidget from "../components/CurrencyConverterWidget";
 
 import "../styles/Dashboard.css";
 
 import { auth, db } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, getDoc, getDocs, doc, setDoc } from "firebase/firestore";
+
+import {
+  getRate,
+  getRatesTable,
+  refreshRates,
+  getCachedTimestamp,
+  getNextRefreshInMs,
+  formatMsToHours,
+} from "../utils/exchangeRateService";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -21,9 +31,14 @@ const Dashboard = () => {
   // Auth
   const [userUid, setUserUid] = useState(null);
 
-  // Currency (display only)
+  // Multi-currency
   const [selectedCurrency, setSelectedCurrency] = useState("NZD");
-  const exchangeRate = 1; // no converter service, so keep 1:1
+  const [exchangeRate, setExchangeRate] = useState(1);
+  const [rateUpdatedAt, setRateUpdatedAt] = useState(null);
+
+  // rate metadata
+  const [rateStatus, setRateStatus] = useState("CACHED"); // LIVE/CACHED/STALE/OFFLINE
+  const [nextRefreshInMs, setNextRefreshInMs] = useState(null);
 
   // Budget popup
   const [showBudgetPopup, setShowBudgetPopup] = useState(false);
@@ -101,6 +116,34 @@ const Dashboard = () => {
   );
 
   // ===========================
+  // LOAD EXCHANGE RATE (CACHED)
+  // ===========================
+  useEffect(() => {
+    const loadRate = async () => {
+      try {
+        const table = await getRatesTable();
+        setRateStatus(table.status || "CACHED");
+
+        const ts = table.timestamp || getCachedTimestamp();
+        setRateUpdatedAt(ts || null);
+
+        const rate = await getRate(selectedCurrency);
+        setExchangeRate(rate);
+
+        const nextMs = ts ? getNextRefreshInMs(ts) : null;
+        setNextRefreshInMs(nextMs);
+      } catch (e) {
+        console.log("Exchange rate error:", e);
+        setRateStatus("OFFLINE");
+        setExchangeRate(1);
+        setRateUpdatedAt(getCachedTimestamp());
+      }
+    };
+
+    loadRate();
+  }, [selectedCurrency]);
+
+  // ===========================
   // CALCULATE REMAINING BUDGET
   // ===========================
   useEffect(() => {
@@ -167,8 +210,9 @@ const Dashboard = () => {
 
         {/* TOP GRID */}
         <div className="dashboard-topgrid">
+          {/* Currency + Exchange */}
           <div className="dashboard-card">
-            <div className="card-title">Currency</div>
+            <div className="card-title">Currency & Exchange Rates</div>
 
             <div className="field-row">
               <div className="field-col">
@@ -191,13 +235,73 @@ const Dashboard = () => {
                   <option value="CAD">CAD - Canadian Dollar</option>
                   <option value="SGD">SGD - Singapore Dollar</option>
                 </select>
-
-                <p style={{ marginTop: 10, opacity: 0.8 }}>
-                  Note: Exchange conversion is currently disabled (showing values
-                  in base currency).
-                </p>
               </div>
             </div>
+
+            <div className="exchange-bar">
+              <div className="exchange-left">
+                <div className="exchange-title">
+                  Base <b>NZD</b> → <b>{selectedCurrency}</b>
+                </div>
+
+                <span
+                  className={`status-pill status-${String(rateStatus).toLowerCase()}`}
+                >
+                  {rateStatus}
+                </span>
+
+                {rateStatus === "OFFLINE" && (
+                  <span className="offline-text">Offline: using saved rates</span>
+                )}
+              </div>
+
+              <div className="exchange-mid">
+                1 NZD = <b>{Number(exchangeRate || 1).toFixed(4)}</b>{" "}
+                {selectedCurrency}
+              </div>
+
+              <div className="exchange-right">
+                <div className="exchange-meta">
+                  {rateUpdatedAt && (
+                    <span>Updated: {new Date(rateUpdatedAt).toLocaleString()}</span>
+                  )}
+                  {rateUpdatedAt && nextRefreshInMs != null && (
+                    <span>Next refresh: {formatMsToHours(nextRefreshInMs)}</span>
+                  )}
+                </div>
+
+                <button
+                  className="btn-outline"
+                  onClick={async () => {
+                    try {
+                      await refreshRates();
+
+                      const rate = await getRate(selectedCurrency);
+                      setExchangeRate(rate);
+
+                      const table = await getRatesTable({ forceRefresh: false });
+                      setRateStatus(table.status || "LIVE");
+
+                      const ts = getCachedTimestamp();
+                      setRateUpdatedAt(ts);
+                      setNextRefreshInMs(ts ? getNextRefreshInMs(ts) : null);
+                    } catch (e) {
+                      console.log(e);
+                      setRateStatus("OFFLINE");
+                    }
+                  }}
+                  type="button"
+                >
+                  Refresh
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Converter */}
+          <div className="dashboard-card">
+            <div className="card-title">Quick Currency Converter</div>
+            <CurrencyConverterWidget defaultTo={selectedCurrency} />
           </div>
         </div>
 
