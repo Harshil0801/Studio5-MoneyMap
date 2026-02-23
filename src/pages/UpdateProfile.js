@@ -130,25 +130,16 @@ const UpdateProfile = () => {
         </form>
 
 
-        <hr style={{ margin: "40px 0" }} />
-
-        <h3>Security Settings</h3>
-
-        <button
-          type="button"
-          onClick={() => navigate("/change-password")}
-          style={{
-            marginTop: "15px",
-            padding: "10px 20px",
-            backgroundColor: "#2e7d73",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer"
-          }}
-        >
-          Change Password
-        </button>
+        <div className="security-section">
+  <h3>Security Settings</h3>
+  <button
+    type="button"
+    className="security-btn"
+    onClick={() => navigate("/change-password")}
+  >
+    Change Password
+  </button>
+</div>
 
       </div>
     </div>
