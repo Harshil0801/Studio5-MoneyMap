@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { auth, db } from "../firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import "../styles/UpdateProfile.css";
-import { setDoc } from "firebase/firestore"; 
+import { setDoc } from "firebase/firestore";
+
 const UpdateProfile = () => {
   const navigate = useNavigate();
 
@@ -17,9 +18,7 @@ const UpdateProfile = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // ==========================
-  // FETCH USER DATA
-  // ==========================
+ 
   useEffect(() => {
     const fetchUserData = async () => {
       const user = auth.currentUser;
@@ -40,9 +39,7 @@ const UpdateProfile = () => {
     fetchUserData();
   }, []);
 
-  // ==========================
-  // HANDLE INPUT CHANGE
-  // ==========================
+  
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -50,9 +47,7 @@ const UpdateProfile = () => {
     });
   };
 
-  // ==========================
-  // HANDLE SUBMIT
-  // ==========================
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -62,23 +57,20 @@ const UpdateProfile = () => {
       const user = auth.currentUser;
       if (!user) return;
 
-      
+      await setDoc(
+        doc(db, "users", user.uid),
+        {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          contact: formData.contact
+        },
+        { merge: true }
+      );
 
-await setDoc(
-  doc(db, "users", user.uid),
-  {
-    firstName: formData.firstName,
-    lastName: formData.lastName,
-    contact: formData.contact
-  },
-  { merge: true }
-);
-
-
-      setMessage("✅ Profile updated successfully!");
+      setMessage(" Profile updated successfully!");
     } catch (error) {
       console.error(error);
-      setMessage("❌ Failed to update profile.");
+      setMessage(" Failed to update profile.");
     }
 
     setLoading(false);
@@ -136,6 +128,28 @@ await setDoc(
           </button>
 
         </form>
+
+
+        <hr style={{ margin: "40px 0" }} />
+
+        <h3>Security Settings</h3>
+
+        <button
+          type="button"
+          onClick={() => navigate("/change-password")}
+          style={{
+            marginTop: "15px",
+            padding: "10px 20px",
+            backgroundColor: "#2e7d73",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer"
+          }}
+        >
+          Change Password
+        </button>
+
       </div>
     </div>
   );
