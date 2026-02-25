@@ -43,6 +43,7 @@ function Navbar() {
 
 
         <Link to="/contact">Contact</Link>
+        <Link to="/help">Help</Link>
         <Link to="/terms">Terms & Conditions</Link>
 
         {/* Logout shown only when logged in */}
@@ -63,6 +64,7 @@ function Navbar() {
           </button>
         )}
       </div>
+      
     </nav>
   );
 }

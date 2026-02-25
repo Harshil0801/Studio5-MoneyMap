@@ -18,9 +18,7 @@ import Terms from "./pages/Terms";
 import UserSummary from "./pages/UserSummary";
 import AboutUs from "./pages/AboutUs";
 import UpdateProfile from "./pages/UpdateProfile";
-
-
-// ✅ ADD THIS
+import HelpPage from "./pages/HelpPage";
 import TransactionPdf from "./pages/TransactionPdf";
 
 import Navbar from "./components/Navbar";
@@ -92,6 +90,7 @@ function AppContent() {
  
         <Route path="/about" element={<AboutUs />} />
         <Route path="/update-profile" element={<UpdateProfile />} />
+        <Route path="/help" element={<HelpPage />} />
 
         
   main

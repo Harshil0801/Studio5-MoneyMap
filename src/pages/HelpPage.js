@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import "./HelpPage.css";
+import "../styles/HelpPage.css";
 
 const HelpPage = () => {
   const [fontSize, setFontSize] = useState(16);
@@ -71,12 +71,12 @@ const HelpPage = () => {
 
       {/* Accessibility Controls */}
       <div className="accessibility-controls">
-        <button onClick={() => setFontSize(fontSize + 2)}>A+</button>
-        <button onClick={() => setFontSize(fontSize - 2)}>A-</button>
+        <button onClick={() => setFontSize(fontSize + 2)}>Zoom In</button>
+        <button onClick={() => setFontSize(fontSize - 2)}>Zoom out</button>
         <button onClick={() => setHighContrast(!highContrast)}>
-          Toggle Contrast
+          Change to Dark mode
         </button>
-        <button onClick={startListening}>🎤 Ask a Question</button>
+        <button onClick={startListening}> Ask a Question</button>
       </div>
 
       {voiceText && <p className="voice-result">You said: {voiceText}</p>}
