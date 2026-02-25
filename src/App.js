@@ -18,9 +18,8 @@ import Terms from "./pages/Terms";
 import UserSummary from "./pages/UserSummary";
 import AboutUs from "./pages/AboutUs";
 import UpdateProfile from "./pages/UpdateProfile";
+import ChangePassword from "./pages/ChangePassword";
 
-
-// ✅ ADD THIS
 import TransactionPdf from "./pages/TransactionPdf";
 
 import Navbar from "./components/Navbar";
@@ -45,11 +44,10 @@ function App() {
 function AppContent() {
   const location = useLocation();
 
-  // Hide Navbar on auth pages
   const hideNavbarPaths = ["/login", "/register", "/forgot-password"];
   const shouldHideNavbar = hideNavbarPaths.includes(location.pathname);
 
-  // Admin checker (only 1 allowed)
+
   const isAdmin = auth.currentUser?.email === "moneymapadmin@gmail.com";
 
   const AdminProtectedRoute = ({ children }) => {
@@ -74,25 +72,21 @@ function AppContent() {
 
       <Routes>
         <Route path="/" element={<Home />} />
-
-        {/* Auth pages */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-
-        {/* Public pages */}
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/feedback" element={<Feedback />} />
 
         <Route path="/user-summary" element={<UserSummary />} />
-  feature/qr-transaction-pdf
-        {/* ✅ ADD THIS ROUTE */}
+         feature/qr-transaction-pdf
+        
         <Route path="/transaction-pdf" element={<TransactionPdf />} />
  
         <Route path="/about" element={<AboutUs />} />
         <Route path="/update-profile" element={<UpdateProfile />} />
-
+        <Route path="/change-password" element={<ChangePassword />} />
         
   main
 
@@ -117,7 +111,7 @@ function AppContent() {
           }
         />
 
-        {/* Admin → User Details */}
+        
         <Route
           path="/admin/user/:uid"
           element={
@@ -128,7 +122,7 @@ function AppContent() {
         />
       </Routes>
 
-      {/* Floating assistant */}
+      
       {!shouldHideNavbar && <BudgetAdvisor />}
     </>
   );
