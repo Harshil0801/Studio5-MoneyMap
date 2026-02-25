@@ -1,0 +1,55 @@
+.help-container {
+  padding: 40px;
+  background: #f4f8ff;
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
+.help-container h1 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+section {
+  background: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.accessibility-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: #3b82f6;
+  color: white;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+.high-contrast {
+  background: black;
+  color: yellow;
+}
+
+.high-contrast section {
+  background: #222;
+  color: yellow;
+}
+
+.voice-result {
+  text-align: center;
+  font-style: italic;
+  margin-bottom: 20px;
+}
