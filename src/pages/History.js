@@ -25,6 +25,11 @@ function History({
     amountNZD: null,
   });
 
+  // ✅ NEW: simple search + date filter states
+  const [search, setSearch] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
   const safeNumber = (val) => {
     const n = parseFloat(String(val).replace(/[^0-9.-]/g, ""));
     return Number.isFinite(n) ? n : 0;
@@ -59,26 +64,6 @@ function History({
   const money = (n) => `${fmt(n)} ${selectedCurrency}`;
 
   // ==========================
-  // ✅ Summary Cards
-  // ==========================
-  const summary = useMemo(() => {
-    const income = transactions
-      .filter((t) => t.type === "income")
-      .reduce((sum, t) => sum + toDisplayAmount(t), 0);
-
-    const expense = transactions
-      .filter((t) => t.type === "expense")
-      .reduce((sum, t) => sum + toDisplayAmount(t), 0);
-
-    return {
-      income,
-      expense,
-      balance: income - expense,
-      count: transactions.length,
-    };
-  }, [transactions, exchangeRate, selectedCurrency]);
-
-  // ==========================
   // ✅ Sort by date (newest first)
   // ==========================
   const sorted = useMemo(() => {
@@ -89,8 +74,49 @@ function History({
     });
   }, [transactions]);
 
+  // ✅ NEW: apply simple search (description) + date filter on top of sorted
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const from = fromDate ? new Date(fromDate + "T00:00:00") : null;
+    const to = toDate ? new Date(toDate + "T23:59:59") : null;
+
+    return sorted.filter((t) => {
+      const d = toDateObj(t.date);
+
+      if (from && d < from) return false;
+      if (to && d > to) return false;
+
+      if (q) {
+        const desc = String(t.description || "").toLowerCase();
+        if (!desc.includes(q)) return false;
+      }
+
+      return true;
+    });
+  }, [sorted, search, fromDate, toDate]);
+
+  // ==========================
+  // ✅ Summary Cards (NOW based on filtered)
+  // ==========================
+  const summary = useMemo(() => {
+    const income = filtered
+      .filter((t) => t.type === "income")
+      .reduce((sum, t) => sum + toDisplayAmount(t), 0);
+
+    const expense = filtered
+      .filter((t) => t.type === "expense")
+      .reduce((sum, t) => sum + toDisplayAmount(t), 0);
+
+    return {
+      income,
+      expense,
+      balance: income - expense,
+      count: filtered.length,
+    };
+  }, [filtered, exchangeRate, selectedCurrency]);
+
   // ============================
-  // DOWNLOAD PDF (WITH CURRENCY)
+  // DOWNLOAD PDF (NOW exports filtered list)
   // ============================
   const downloadPDF = () => {
     const docPDF = new jsPDF();
@@ -102,7 +128,7 @@ function History({
     docPDF.text(`Generated: ${new Date().toLocaleString()}`, 14, 26);
     docPDF.text(`Currency view: ${selectedCurrency}`, 14, 32);
 
-    const rows = sorted.map((t) => {
+    const rows = filtered.map((t) => {
       const originalCurrency = t.currency || "NZD";
       const originalAmount = safeNumber(t.amount);
       const displayAmount = toDisplayAmount(t);
@@ -246,6 +272,97 @@ function History({
         </p>
       </div>
 
+      {/* ✅ NEW: Simple Search + Date Filter UI */}
+      <div style={{ ...card, marginBottom: 14 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "2fr 1fr 1fr auto",
+            gap: 10,
+            alignItems: "end",
+          }}
+        >
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}>
+              Search (description)
+            </div>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search description..."
+              style={{
+                width: "100%",
+                padding: 10,
+                borderRadius: 12,
+                border: "1px solid #dbe3ea",
+                marginTop: 6,
+              }}
+            />
+          </div>
+
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}>
+              From
+            </div>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              style={{
+                width: "100%",
+                padding: 10,
+                borderRadius: 12,
+                border: "1px solid #dbe3ea",
+                marginTop: 6,
+              }}
+            />
+          </div>
+
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}>
+              To
+            </div>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              style={{
+                width: "100%",
+                padding: 10,
+                borderRadius: 12,
+                border: "1px solid #dbe3ea",
+                marginTop: 6,
+              }}
+            />
+          </div>
+
+          <button
+            onClick={() => {
+              setSearch("");
+              setFromDate("");
+              setToDate("");
+            }}
+            style={{
+              padding: "10px 14px",
+              borderRadius: 12,
+              border: "1px solid #cbd5e1",
+              background: "white",
+              cursor: "pointer",
+              fontWeight: 900,
+              height: 42,
+            }}
+            type="button"
+          >
+            Clear
+          </button>
+        </div>
+
+        <div style={{ marginTop: 10, fontSize: 12, color: "#64748b" }}>
+          Showing <b>{filtered.length}</b> of <b>{transactions.length}</b>{" "}
+          transactions.
+        </div>
+      </div>
+
       {/* ✅ Summary Cards */}
       <div
         style={{
@@ -353,7 +470,7 @@ function History({
 
       {/* ✅ Table Card */}
       <div style={{ ...card, marginTop: 14, padding: 0 }}>
-        {sorted.length === 0 ? (
+        {filtered.length === 0 ? (
           <p style={{ padding: 16, margin: 0 }}>No transactions found.</p>
         ) : (
           <div style={{ overflowX: "auto", maxHeight: 520 }}>
@@ -397,7 +514,7 @@ function History({
               </thead>
 
               <tbody>
-                {sorted.map((t) => {
+                {filtered.map((t) => {
                   const originalCurrency = t.currency || "NZD";
                   const originalAmount = safeNumber(t.amount);
                   const displayAmount = toDisplayAmount(t);
@@ -738,6 +855,11 @@ function History({
       <style>{`
         @media (max-width: 900px) {
           .history-page > div[style*="repeat(4"] {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        @media (max-width: 820px) {
+          .history-page .filter-grid {
             grid-template-columns: 1fr !important;
           }
         }
