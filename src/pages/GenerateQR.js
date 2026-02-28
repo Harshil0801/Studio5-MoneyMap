@@ -4,30 +4,34 @@ import { auth } from "../firebase";
 
 const GenerateQR = () => {
   const [qrValue, setQrValue] = useState("");
+  const user = auth.currentUser;
 
   useEffect(() => {
-    const user = auth.currentUser;
     if (user) {
-      // Local testing URL
       const url = `${window.location.origin}/transaction-pdf?uid=${user.uid}`;
-
       setQrValue(url);
     }
-  }, []);
+  }, [user]);
+
+  if (!user) {
+    return (
+      <div style={{ padding: 40, textAlign: "center" }}>
+        <h2>🔐 Please Login</h2>
+        <p>You must be logged in to generate your QR code.</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: "20px", textAlign: "center" }}>
       <h2>Your Weekly QR Code</h2>
       <p>Scan with your mobile camera to view your financial summary.</p>
 
-      {qrValue && (
-        <>
-          <div style={{ marginTop: "30px" }}>
-            <QRCode value={qrValue} size={200} />
-          </div>
-          <p style={{ marginTop: "10px", fontSize: "12px" }}>{qrValue}</p>
-        </>
-      )}
+      <div style={{ marginTop: "30px" }}>
+        <QRCode value={qrValue} size={200} />
+      </div>
+
+      <p style={{ marginTop: "10px", fontSize: "12px" }}>{qrValue}</p>
     </div>
   );
 };

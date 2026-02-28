@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useLocation,
-  Navigate,
-} from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -18,9 +12,16 @@ import Terms from "./pages/Terms";
 import UserSummary from "./pages/UserSummary";
 import AboutUs from "./pages/AboutUs";
 import UpdateProfile from "./pages/UpdateProfile";
+ feature/chatbot-enhancements
+import GenerateQR from "./pages/GenerateQR";
+ 
 import ChangePassword from "./pages/ChangePassword";
 
+ 
 import TransactionPdf from "./pages/TransactionPdf";
+
+import AddTransaction from "./pages/AddTransaction"; // ✅ EXISTS in pages
+import CurrencyConverterWidget from "./components/CurrencyConverterWidget"; // ✅ EXISTS in components
 
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -34,26 +35,29 @@ import { auth } from "./firebase";
 import "./App.css";
 
 function App() {
-  return (
-    <Router>
-      <AppContent />
-    </Router>
-  );
+  return <AppContent />;
 }
 
 function AppContent() {
   const location = useLocation();
 
+ feature/chatbot-enhancements
+  // Hide Navbar + chatbot on auth pages
+  const hideNavbarPaths = ["/login", "/register", "/forgot-password"];
+  const shouldHideNavbar = hideNavbarPaths.includes(location.pathname);
+
+  // Admin checker
+ 
   const hideNavbarPaths = ["/login", "/register", "/forgot-password"];
   const shouldHideNavbar = hideNavbarPaths.includes(location.pathname);
 
 
+ 
   const isAdmin = auth.currentUser?.email === "moneymapadmin@gmail.com";
 
   const AdminProtectedRoute = ({ children }) => {
-    if (!auth.currentUser) {
-      return <Navigate to="/login" />;
-    }
+    if (!auth.currentUser) return <Navigate to="/login" />;
+
     if (!isAdmin) {
       return (
         <div style={{ padding: 30 }}>
@@ -62,12 +66,12 @@ function AppContent() {
         </div>
       );
     }
+
     return children;
   };
 
   return (
     <>
-      {/* Navbar visible everywhere except login/register/forgot */}
       {!shouldHideNavbar && <Navbar />}
 
       <Routes>
@@ -78,6 +82,8 @@ function AppContent() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/feedback" element={<Feedback />} />
+  feature/chatbot-enhancements
+ 
 
         <Route path="/user-summary" element={<UserSummary />} />
          feature/qr-transaction-pdf
@@ -85,13 +91,37 @@ function AppContent() {
         <Route path="/transaction-pdf" element={<TransactionPdf />} />
  
         <Route path="/about" element={<AboutUs />} />
+
+        {/* Update profile (keep as you had) */}
         <Route path="/update-profile" element={<UpdateProfile />} />
+  feature/chatbot-enhancements
+
+        {/* ✅ Add Transaction page */}
+        <Route path="/add-transaction" element={<AddTransaction />} />
+ 
         <Route path="/change-password" element={<ChangePassword />} />
-        
-  main
+ 
 
-        <Route path="/about" element={<AboutUs />} />
+        {/* ✅ Multi-Currency page */}
+        <Route path="/converter" element={<CurrencyConverterWidget />} />
 
+        {/* ✅ QR page (Protected) */}
+        <Route
+          path="/generate-qr"
+          element={
+            <ProtectedRoute>
+              <GenerateQR />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Public summary */}
+        <Route path="/user-summary" element={<UserSummary />} />
+
+        {/* PDF export */}
+        <Route path="/transaction-pdf" element={<TransactionPdf />} />
+
+        {/* Protected dashboard */}
         <Route
           path="/dashboard"
           element={
@@ -122,7 +152,9 @@ function AppContent() {
         />
       </Routes>
 
-      
+  feature/chatbot-enhancements
+ 
+ 
       {!shouldHideNavbar && <BudgetAdvisor />}
     </>
   );
