@@ -1,0 +1,81 @@
+.help-container {
+  padding: 40px;
+  background: #eaf7f6; /* light teal background */
+  min-height: 100vh;
+  transition: 0.3s;
+  color: #1e293b;
+}
+
+.help-container h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #2f7d7a; /* teal brand color */
+}
+
+section {
+  background: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid #2f7d7a;
+}
+
+.accessibility-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: #2f7d7a; /* teal button */
+  color: white;
+  transition: 0.2s ease;
+}
+
+button:hover {
+  background: #256865;
+}
+
+/* ================= DARK MODE (COMPLETELY DIFFERENT STYLE) ================= */
+
+.high-contrast {
+  background: #0f172a; /* deep navy */
+  color: #e2e8f0;
+}
+
+.high-contrast h1 {
+  color: #818cf8; /* soft purple-blue */
+}
+
+.high-contrast section {
+  background: #1e293b; /* dark slate */
+  border-left: 4px solid #818cf8; /* purple accent */
+  color: #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.high-contrast button {
+  background: #6366f1; /* purple button */
+  color: white;
+}
+
+.high-contrast button:hover {
+  background: #4f46e5;
+}
+
+.voice-result {
+  text-align: center;
+  font-style: italic;
+  margin-bottom: 20px;
+  color: #475569;
+}
+
+.high-contrast .voice-result {
+  color: #c7d2fe;
+}
