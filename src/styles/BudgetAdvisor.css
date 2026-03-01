@@ -309,3 +309,25 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+.chat-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chat-action-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  background: #304ffe;
+  color: white;
+  transition: 0.15s ease;
+}
+
+.chat-action-btn:hover {
+  transform: scale(1.03);
+  opacity: 0.95;
+}
