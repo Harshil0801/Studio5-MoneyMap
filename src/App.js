@@ -12,6 +12,7 @@ import Terms from "./pages/Terms";
 import UserSummary from "./pages/UserSummary";
 import AboutUs from "./pages/AboutUs";
 import UpdateProfile from "./pages/UpdateProfile";
+import HelpPage from "./pages/HelpPage";
 import GenerateQR from "./pages/GenerateQR";
 import ChangePassword from "./pages/ChangePassword";
 import TransactionPdf from "./pages/TransactionPdf";
@@ -71,6 +72,7 @@ function AppContent() {
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/update-profile" element={<UpdateProfile />} />
+        <Route path="/help" element={<HelpPage />} />
         <Route path="/add-transaction" element={<AddTransaction />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/converter" element={<CurrencyConverterWidget />} />
