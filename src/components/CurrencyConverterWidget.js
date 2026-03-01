@@ -7,6 +7,7 @@ export default function CurrencyConverterWidget({ defaultTo = "USD" }) {
   const [to, setTo] = useState(defaultTo);
   const [info, setInfo] = useState(null);
 
+  // Fetch exchange rates once
   useEffect(() => {
     (async () => {
       const table = await getRatesTable();
@@ -16,7 +17,8 @@ export default function CurrencyConverterWidget({ defaultTo = "USD" }) {
 
   const rates = info?.rates || { NZD: 1 };
 
-  // Convert: FROM -> NZD -> TO (rates are: 1 NZD = rates[CUR])
+  // Convert: FROM -> NZD -> TO
+  // rates structure: 1 NZD = rates[CUR]
   const result = useMemo(() => {
     const amt = Number(amount);
     if (!amt || isNaN(amt)) return 0;
@@ -32,7 +34,17 @@ export default function CurrencyConverterWidget({ defaultTo = "USD" }) {
     return out;
   }, [amount, from, to, rates]);
 
-  const currencyList = Object.keys(rates).slice(0, 30); // keep list short and fast
+  // Get full list of currencies from API
+  const currencyList = useMemo(() => {
+    const codes = Object.keys(rates);
+    if (!codes.includes("NZD")) codes.push("NZD");
+    return codes.sort();
+  }, [rates]);
+
+  // Use Intl API for full currency names
+  const dn = useMemo(() => {
+    return new Intl.DisplayNames(["en"], { type: "currency" });
+  }, []);
 
   return (
     <div className="currency-card">
@@ -48,20 +60,22 @@ export default function CurrencyConverterWidget({ defaultTo = "USD" }) {
           style={{ width: 140 }}
         />
 
+        {/* FROM Currency */}
         <select value={from} onChange={(e) => setFrom(e.target.value)}>
           {currencyList.map((c) => (
             <option key={c} value={c}>
-              {c}
+              {c} - {dn.of(c) || c}
             </option>
           ))}
         </select>
 
         <span style={{ fontWeight: 800 }}>→</span>
 
+        {/* TO Currency */}
         <select value={to} onChange={(e) => setTo(e.target.value)}>
           {currencyList.map((c) => (
             <option key={c} value={c}>
-              {c}
+              {c} - {dn.of(c) || c}
             </option>
           ))}
         </select>
@@ -73,7 +87,9 @@ export default function CurrencyConverterWidget({ defaultTo = "USD" }) {
 
       <div className="currency-note">
         Status: <b>{info?.status || "CACHED"}</b>
-        {info?.timestamp ? ` • Updated: ${new Date(info.timestamp).toLocaleString()}` : ""}
+        {info?.timestamp
+          ? ` • Updated: ${new Date(info.timestamp).toLocaleString()}`
+          : ""}
       </div>
     </div>
   );
