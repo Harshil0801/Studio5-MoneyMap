@@ -10,14 +10,17 @@ import { Link, useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 
 function Login() {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
 
+  // EMAIL LOGIN
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -28,7 +31,7 @@ function Login() {
 
       const user = userCredential.user;
 
-      // fetch role from Firestore
+      // Get user document
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
@@ -40,12 +43,49 @@ function Login() {
       const userData = userSnap.data();
       const role = userData.role;
 
-      // store role locally
+      // Save role for RBAC
       localStorage.setItem("userRole", role);
 
-      // redirect based on role
+      // Redirect based on role
       if (role === "admin") {
-        navigate("/admin-dashboard");
+        navigate("/AdminDashboard");
+      } else {
+        navigate("/dashboard");
+      }
+
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // GOOGLE LOGIN
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      let role = "user";
+
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          firstName: user.displayName || "",
+          email: user.email,
+          role: role,
+          createdAt: new Date(),
+        });
+      } else {
+        role = userSnap.data().role;
+      }
+
+      localStorage.setItem("userRole", role);
+
+      if (role === "admin") {
+        navigate("/AdminDashboard");
       } else {
         navigate("/dashboard");
       }
@@ -55,61 +95,45 @@ function Login() {
     }
   };
 
-  // GOOGLE LOGIN
-  const handleGoogleLogin = async () => {
-
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-
-        await setDoc(userRef, {
-          email: user.email,
-          role: "user",
-          createdAt: new Date(),
-        });
-
-        localStorage.setItem("userRole", "user");
-
-      } else {
-        const role = userSnap.data().role;
-        localStorage.setItem("userRole", role);
-      }
-
-      navigate("/dashboard");
-
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
   return (
-    <div>
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          onChange={(e)=>setEmail(e.target.value)}
-        />
+    <div className="login-page">
+      <div className="login-card">
 
-        <input
-          type="password"
-          placeholder="Password"
-          onChange={(e)=>setPassword(e.target.value)}
-        />
+        <h2>Welcome Back!</h2>
 
-        <button type="submit">Login</button>
-      </form>
+        <form onSubmit={handleLogin}>
 
-      <button onClick={handleGoogleLogin}>
-        Login with Google
-      </button>
+          <input
+            type="email"
+            placeholder="Email Address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-      <Link to="/register">Register</Link>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
+
+        </form>
+
+        <button onClick={handleGoogleLogin}>
+          Continue with Google
+        </button>
+
+        <p>
+          Don’t have an account? <Link to="/register">Register</Link>
+        </p>
+
+      </div>
     </div>
   );
 }
