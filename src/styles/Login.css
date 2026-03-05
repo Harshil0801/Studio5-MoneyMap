@@ -31,11 +31,10 @@
   text-align:center;
 }
 
-/* TITLE */
-.login-title{
-  font-size:28px;
-  font-weight:700;
-  margin-bottom:8px;
+.login-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2f6a5e;
 }
 
 /* SUBTITLE */
