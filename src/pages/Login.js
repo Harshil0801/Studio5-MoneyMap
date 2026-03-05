@@ -17,7 +17,6 @@ function Login() {
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
 
-  // EMAIL LOGIN
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -31,36 +30,35 @@ function Login() {
 
       const user = userCredential.user;
 
-      // Get user document
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
-      if (!userSnap.exists()) {
-        alert("User data not found.");
-        return;
-      }
+      if (userSnap.exists()) {
+        const role = userSnap.data().role;
 
-      const userData = userSnap.data();
-      const role = userData.role;
+        localStorage.setItem("userRole", role);
 
-      // Save role for RBAC
-      localStorage.setItem("userRole", role);
-
-      // Redirect based on role
-      if (role === "admin") {
-        navigate("/AdminDashboard");
+        if (role === "admin") {
+          navigate("/AdminDashboard");
+        } else {
+          navigate("/dashboard");
+        }
       } else {
-        navigate("/dashboard");
+        alert("User data not found in database.");
       }
-
     } catch (error) {
-      alert(error.message);
+      if (error.code === "auth/invalid-credential") {
+        alert("Invalid email or password.");
+      } else if (error.code === "auth/user-not-found") {
+        alert("No account found with this email.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // GOOGLE LOGIN
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
@@ -75,7 +73,7 @@ function Login() {
         await setDoc(userRef, {
           firstName: user.displayName || "",
           email: user.email,
-          role: role,
+          role: "user",
           createdAt: new Date(),
         });
       } else {
@@ -84,56 +82,78 @@ function Login() {
 
       localStorage.setItem("userRole", role);
 
-      if (role === "admin") {
-        navigate("/AdminDashboard");
-      } else {
-        navigate("/dashboard");
-      }
+      navigate("/dashboard");
 
     } catch (error) {
-      alert(error.message);
+      alert("❌ " + error.message);
     }
   };
 
   return (
     <div className="login-page">
-      <div className="login-card">
 
-        <h2>Welcome Back!</h2>
+      <div className="login-wrapper">
 
-        <form onSubmit={handleLogin}>
+        <div className="login-card">
 
-          <input
-            type="email"
-            placeholder="Email Address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <h2 className="login-title">Welcome Back!</h2>
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <p className="login-subtitle">
+            Log in to manage your finances smarter 💼
+          </p>
 
-          <button type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
+          <form onSubmit={handleLogin} className="login-form">
 
-        </form>
+            <input
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
 
-        <button onClick={handleGoogleLogin}>
-          Continue with Google
-        </button>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
 
-        <p>
-          Don’t have an account? <Link to="/register">Register</Link>
-        </p>
+            <button className="primary-btn" type="submit" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+            </button>
+
+          </form>
+
+          <div className="google-btn-container">
+            <button className="google-btn" onClick={handleGoogleLogin}>
+              <img
+                src="https://developers.google.com/identity/images/g-logo.png"
+                alt="Google"
+              />
+              Continue with Google
+            </button>
+          </div>
+
+          <div className="login-links">
+            <p>
+              Don’t have an account? <Link to="/register">Register</Link>
+            </p>
+
+            <p>
+              <Link to="/forgot-password">Forgot Password?</Link>
+            </p>
+
+            <p className="back-home-link">
+              <Link to="/">Back to Home</Link>
+            </p>
+          </div>
+
+        </div>
 
       </div>
+
     </div>
   );
 }

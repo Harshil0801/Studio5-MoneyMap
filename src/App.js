@@ -94,14 +94,7 @@ function AppContent() {
           }
         />
 
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+        
 
         {/* Admin RBAC Routes */}
         <Route
