@@ -1,19 +1,16 @@
 /* LOGIN PAGE FULL SCREEN */
-.login-page{
-  position:fixed;
-  top:0;
-  left:0;
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  width:100vw;
-  height:100vh;
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-
-  background:linear-gradient(135deg,#8ec5fc,#e0c3fc);
-
-  z-index:999;
+  background: linear-gradient(
+    135deg,
+    #c6e2ff,
+    #e3d5ff,
+    #fbcfe8
+  );
 }
 
 /* LOGIN CARD */
