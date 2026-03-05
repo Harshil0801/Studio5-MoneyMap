@@ -1,11 +1,11 @@
 
-/* Login.css & Register.css */
-.login-page, .register-page, .reset-page {
+/*  Register.css */
+ .register-page, .reset-page {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: #f9fafb;
+  background: hsl(210, 20%, 98%);
 }
 
 .login-container, .register-container, .reset-container {

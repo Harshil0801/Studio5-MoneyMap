@@ -16,6 +16,11 @@ function Home() {
     totalFeedback: 0,
   });
 
+  // admin data view
+  const [view, setView] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [feedback, setFeedback] = useState([]);
+
   // User financial stats
   const [finance, setFinance] = useState({
     income: 0,
@@ -33,11 +38,9 @@ function Home() {
 
       if (!currentUser) return;
 
-      // If admin → load admin stats
       if (currentUser.email === "moneymapadmin@gmail.com") {
         await loadAdminStats();
       } else {
-        // Normal user → load income/expense
         await loadUserFinance(currentUser.uid);
       }
     });
@@ -58,6 +61,22 @@ function Home() {
     } catch (err) {
       console.log("Admin stats error:", err);
     }
+  };
+
+  // Load all users
+  const loadUsers = async () => {
+    const snap = await getDocs(collection(db, "users"));
+    const list = snap.docs.map((doc) => doc.data());
+    setUsers(list);
+    setView("users");
+  };
+
+  // Load feedback
+  const loadFeedback = async () => {
+    const snap = await getDocs(collection(db, "feedback"));
+    const list = snap.docs.map((doc) => doc.data());
+    setFeedback(list);
+    setView("feedback");
   };
 
   // Load user income + expense
@@ -98,21 +117,78 @@ function Home() {
           <h1>Welcome back, <span>Admin 👑</span></h1>
           <p>Here’s your system overview:</p>
 
-          <div className="summary-cards admin-cards">
-            <div className="summary-card admin-card">
+          <div className="admin-overview">
+
+            <div className="admin-card" onClick={loadUsers}>
               <h3>Total Users</h3>
               <p>{adminStats.totalUsers}</p>
             </div>
 
-            <div className="summary-card admin-card">
+            <div className="admin-card" onClick={loadFeedback}>
               <h3>Total Feedback</h3>
               <p>{adminStats.totalFeedback}</p>
             </div>
+
           </div>
+
+          {/* USERS TABLE */}
+          {view === "users" && (
+            <div className="admin-results">
+              <h2>Registered Users</h2>
+
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Contact</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {users.map((u, index) => (
+                    <tr key={index}>
+                      <td>{u.firstName} {u.lastName}</td>
+                      <td>{u.email}</td>
+                      <td>{u.contact}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* FEEDBACK TABLE */}
+          {view === "feedback" && (
+            <div className="admin-results">
+              <h2>User Feedback</h2>
+
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Message</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {feedback.map((f, index) => (
+                    <tr key={index}>
+                      <td>{f.name || "Anonymous User"}</td>
+                      <td>{f.email || "No email"}</td>
+                      <td>{f.message}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
         </section>
       )}
 
-      {/* ===================== NORMAL USER HOME (income + expense) ===================== */}
+      {/* ===================== NORMAL USER HOME ===================== */}
       {user && user.email !== "moneymapadmin@gmail.com" && (
         <section className="user-dashboard" data-aos="fade-up">
           <h1>Welcome back 👋</h1>
@@ -133,8 +209,6 @@ function Home() {
               <p>${finance.balance}</p>
             </div>
           </div>
-
-          
         </section>
       )}
 
@@ -155,30 +229,6 @@ function Home() {
               </div>
             </div>
           </section>
-
-          <section className="features" id="features">
-            <h2 data-aos="fade-up">Why People Love <span>MoneyMap</span></h2>
-
-            <div className="feature-grid">
-              <div className="feature-card" data-aos="fade-up" data-aos-delay="100">
-                <i className="fas fa-wallet"></i>
-                <h3>Track Spending</h3>
-                <p>Visualize & understand your expenses.</p>
-              </div>
-
-              <div className="feature-card" data-aos="fade-up" data-aos-delay="200">
-                <i className="fas fa-chart-line"></i>
-                <h3>Analyze Trends</h3>
-                <p>See where your money goes.</p>
-              </div>
-
-              <div className="feature-card" data-aos="fade-up" data-aos-delay="300">
-                <i className="fas fa-bullseye"></i>
-                <h3>Set Goals</h3>
-                <p>Save with clear targets.</p>
-              </div>
-            </div>
-          </section>
         </>
       )}
 
@@ -189,11 +239,17 @@ function Home() {
         </h2>
 
         <Link
-          to={user ? "/dashboard" : "/register"}
-          className="btn primary cta-btn"
-        >
-          {user ? "Open Dashboard" : "Join MoneyMap Now"}
-        </Link>
+  to={
+    !user
+      ? "/register"
+      : user.email === "moneymapadmin@gmail.com"
+      ? "/AdminDashboard"
+      : "/dashboard"
+  }
+  className="btn primary cta-btn"
+>
+  {user ? "Open Dashboard" : "Join MoneyMap Now"}
+</Link>
       </section>
 
       {/* ===================== FOOTER ===================== */}
