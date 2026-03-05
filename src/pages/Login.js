@@ -10,17 +10,14 @@ import { Link, useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 
 function Login() {
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
 
-  // EMAIL & PASSWORD LOGIN 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -31,42 +28,36 @@ function Login() {
 
       const user = userCredential.user;
 
-      // For getting user role from Firestore
+      // fetch role from Firestore
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        const role = userData.role;
+      if (!userSnap.exists()) {
+        alert("User data not found.");
+        return;
+      }
 
-        alert(" Login successful!");
+      const userData = userSnap.data();
+      const role = userData.role;
 
-        //If admin redirects to admin dashboard else if user it redirects to user dashboard
-        if (role === "admin") {
-          navigate("/AdminDashboard");
-        } else {
-          navigate("/dashboard");
-        }
+      // store role locally
+      localStorage.setItem("userRole", role);
 
+      // redirect based on role
+      if (role === "admin") {
+        navigate("/admin-dashboard");
       } else {
-        alert("User data not found in database.");
+        navigate("/dashboard");
       }
 
     } catch (error) {
-      if (error.code === "auth/invalid-credential") {
-        alert(" Invalid email or password.");
-      } else if (error.code === "auth/user-not-found") {
-        alert(" No account found with this email.");
-      } else {
-        alert("Something went wrong. Please try again.");
-      }
-    } finally {
-      setLoading(false);
+      alert(error.message);
     }
   };
 
-  // ================= GOOGLE LOGIN =================
+  // GOOGLE LOGIN
   const handleGoogleLogin = async () => {
+
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
@@ -75,82 +66,50 @@ function Login() {
       const userSnap = await getDoc(userRef);
 
       if (!userSnap.exists()) {
-        await setDoc(userRef, {
-          firstName: user.displayName || "",
-          email: user.email,
-          role: "user", 
-          createdAt: new Date()
-        });
-      }
 
-      alert("Logged in successfully with Google!");
+        await setDoc(userRef, {
+          email: user.email,
+          role: "user",
+          createdAt: new Date(),
+        });
+
+        localStorage.setItem("userRole", "user");
+
+      } else {
+        const role = userSnap.data().role;
+        localStorage.setItem("userRole", role);
+      }
 
       navigate("/dashboard");
 
     } catch (error) {
-      alert("❌ " + error.message);
+      alert(error.message);
     }
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
+    <div>
+      <form onSubmit={handleLogin}>
+        <input
+          type="email"
+          placeholder="Email"
+          onChange={(e)=>setEmail(e.target.value)}
+        />
 
-        <h2 className="login-title">Welcome Back!</h2>
-        <p className="login-subtitle">
-          Log in to manage your finances smarter 💼
-        </p>
+        <input
+          type="password"
+          placeholder="Password"
+          onChange={(e)=>setPassword(e.target.value)}
+        />
 
-        <form onSubmit={handleLogin} className="login-form">
+        <button type="submit">Login</button>
+      </form>
 
-          <input
-            type="email"
-            placeholder="Email Address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+      <button onClick={handleGoogleLogin}>
+        Login with Google
+      </button>
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          <button className="primary-btn" type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
-
-        </form>
-
-        {/* GOOGLE LOGIN */}
-        <div className="google-btn-container">
-          <button className="google-btn" onClick={handleGoogleLogin}>
-            <img
-              src="https://developers.google.com/identity/images/g-logo.png"
-              alt="Google"
-            />
-            Continue with Google
-          </button>
-        </div>
-
-        {/* LINKS */}
-        <div className="login-links">
-          <p>
-            Don’t have an account? <Link to="/register">Register</Link>
-          </p>
-          <p>
-            <Link to="/forgot-password">Forgot Password?</Link>
-          </p>
-
-          <p className="back-home-link">
-            <Link to="/"> Back to Home</Link>
-          </p>
-        </div>
-
-      </div>
+      <Link to="/register">Register</Link>
     </div>
   );
 }
