@@ -3,3 +3,37 @@ body {
   padding: 0;
   background-color: #eef8f6;
 }
+/* Hide Google translate banner */
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+
+/* Hide iframe banner */
+iframe.goog-te-banner-frame {
+  display: none !important;
+}
+
+/* Remove top spacing Google adds */
+body {
+  top: 0 !important;
+  position: static !important;
+}
+
+/* Reset HTML margin */
+html {
+  margin-top: 0 !important;
+}
+
+/* Hide Google translate branding area */
+.goog-te-gadget {
+  display: none !important;
+}
+
+.goog-logo-link {
+  display: none !important;
+}
+
+/* Sometimes Google adds inline style */
+body > .skiptranslate {
+  display: none !important;
+}

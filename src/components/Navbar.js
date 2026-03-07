@@ -8,6 +8,7 @@ import "../styles/Navbar.css";
 function Navbar() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [openLang, setOpenLang] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -21,50 +22,69 @@ function Navbar() {
     navigate("/login");
   };
 
+const changeLanguage = (lang) => {
+    const interval = setInterval(() => {
+      const select = document.querySelector(".goog-te-combo");
+
+      if (select) {
+        select.value = lang;
+        select.dispatchEvent(new Event("change"));
+        clearInterval(interval);
+      }
+    }, 500);
+
+    setOpenLang(false);
+  };
+
   return (
     <nav className="navbar">
+
       <h2 className="nav-logo">MoneyMap 💸</h2>
 
       <div className="nav-links">
         <Link to="/">Home</Link>
 
-        {/* Only show when NOT logged in */}
         {!user && <Link to="/login">Login</Link>}
         {!user && <Link to="/register">Register</Link>}
 
-       {/* Show different dashboard link for admin */}
-{user && auth.currentUser?.email !== "moneymapadmin@gmail.com" && (
-  <Link to="/dashboard">Dashboard</Link>
-)}
+        {user && auth.currentUser?.email !== "moneymapadmin@gmail.com" && (
+          <Link to="/dashboard">Dashboard</Link>
+        )}
 
-{user && auth.currentUser?.email === "moneymapadmin@gmail.com" && (
-  <Link to="/AdminDashboard">Dashboard</Link>
-)}
-
+        {user && auth.currentUser?.email === "moneymapadmin@gmail.com" && (
+          <Link to="/AdminDashboard">Dashboard</Link>
+        )}
 
         <Link to="/contact">Contact</Link>
         <Link to="/help">Help</Link>
-        <Link to="/terms">Terms & Conditions</Link>
+        <Link to="/terms">Terms</Link>
 
-        {/* Logout shown only when logged in */}
         {user && (
-          <button
-            onClick={handleLogout}
-            className="logout-btn"
-            style={{
-              background: "none",
-              border: "none",
-              color: "#fff",
-              cursor: "pointer",
-              fontSize: "16px",
-              marginLeft: "10px",
-            }}
-          >
+          <button onClick={handleLogout} className="logout-btn">
             Logout
           </button>
         )}
+
+        <div className="language-container">
+          <button
+            className="language-btn"
+            onClick={() => setOpenLang(!openLang)}
+          >
+            🌐 Language
+          </button>
+
+          {openLang && (
+            <div className="language-menu">
+              <div onClick={() => changeLanguage("en")}>English</div>
+              <div onClick={() => changeLanguage("mi")}>Māori</div>
+            </div>
+          )}
+        </div>
       </div>
-      
+
+      {/* Hidden Google Translate element */}
+      <div id="google_translate_element" style={{ display: "none" }}></div>
+
     </nav>
   );
 }
