@@ -25,10 +25,12 @@ function History({
     amountNZD: null,
   });
 
-  // ✅ NEW: simple search + date filter states
+  // Filters
   const [search, setSearch] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   const safeNumber = (val) => {
     const n = parseFloat(String(val).replace(/[^0-9.-]/g, ""));
@@ -49,11 +51,6 @@ function History({
     return isNaN(dateObj.getTime()) ? "-" : dateObj.toLocaleDateString();
   };
 
-  /**
-   * ✅ True multi-currency display:
-   * Prefer amountNZD (base) if present; else fallback to amount.
-   * Then convert NZD -> selectedCurrency using exchangeRate.
-   */
   const toDisplayAmount = (t) => {
     const baseNZD =
       t?.amountNZD != null ? safeNumber(t.amountNZD) : safeNumber(t.amount);
@@ -63,9 +60,18 @@ function History({
   const fmt = (n) => Number(n || 0).toFixed(2);
   const money = (n) => `${fmt(n)} ${selectedCurrency}`;
 
-  // ==========================
-  // ✅ Sort by date (newest first)
-  // ==========================
+  const isToday = (d) => {
+    const dateObj = toDateObj(d);
+    const now = new Date();
+
+    return (
+      dateObj.getDate() === now.getDate() &&
+      dateObj.getMonth() === now.getMonth() &&
+      dateObj.getFullYear() === now.getFullYear()
+    );
+  };
+
+  // Sort newest first
   const sorted = useMemo(() => {
     return [...transactions].sort((a, b) => {
       const da = toDateObj(a.date).getTime();
@@ -74,7 +80,17 @@ function History({
     });
   }, [transactions]);
 
-  // ✅ NEW: apply simple search (description) + date filter on top of sorted
+  // Unique categories for dropdown
+  const categories = useMemo(() => {
+    const unique = new Set(
+      transactions
+        .map((t) => String(t.category || "").trim())
+        .filter(Boolean)
+    );
+    return Array.from(unique).sort((a, b) => a.localeCompare(b));
+  }, [transactions]);
+
+  // Apply all filters
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const from = fromDate ? new Date(fromDate + "T00:00:00") : null;
@@ -86,6 +102,9 @@ function History({
       if (from && d < from) return false;
       if (to && d > to) return false;
 
+      if (typeFilter !== "all" && t.type !== typeFilter) return false;
+      if (categoryFilter !== "all" && t.category !== categoryFilter) return false;
+
       if (q) {
         const desc = String(t.description || "").toLowerCase();
         if (!desc.includes(q)) return false;
@@ -93,11 +112,9 @@ function History({
 
       return true;
     });
-  }, [sorted, search, fromDate, toDate]);
+  }, [sorted, search, fromDate, toDate, typeFilter, categoryFilter]);
 
-  // ==========================
-  // ✅ Summary Cards (NOW based on filtered)
-  // ==========================
+  // Summary based on filtered data
   const summary = useMemo(() => {
     const income = filtered
       .filter((t) => t.type === "income")
@@ -113,11 +130,46 @@ function History({
       balance: income - expense,
       count: filtered.length,
     };
-  }, [filtered, exchangeRate, selectedCurrency]);
+  }, [filtered, exchangeRate]);
 
-  // ============================
-  // DOWNLOAD PDF (NOW exports filtered list)
-  // ============================
+  // Quick stats
+  const quickStats = useMemo(() => {
+    const incomeCount = filtered.filter((t) => t.type === "income").length;
+    const expenseCount = filtered.filter((t) => t.type === "expense").length;
+    const todayCount = filtered.filter((t) => isToday(t.date)).length;
+
+    return {
+      incomeCount,
+      expenseCount,
+      todayCount,
+    };
+  }, [filtered]);
+
+  // Top spending category
+  const topCategory = useMemo(() => {
+    const totals = {};
+
+    filtered.forEach((t) => {
+      if (t.type === "expense") {
+        const category = t.category || "Other";
+        totals[category] = (totals[category] || 0) + toDisplayAmount(t);
+      }
+    });
+
+    const sortedCategories = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+
+    return sortedCategories.length > 0 ? sortedCategories[0][0] : "-";
+  }, [filtered, exchangeRate]);
+
+  const clearFilters = () => {
+    setSearch("");
+    setFromDate("");
+    setToDate("");
+    setTypeFilter("all");
+    setCategoryFilter("all");
+  };
+
+  // PDF export
   const downloadPDF = () => {
     const docPDF = new jsPDF();
 
@@ -163,9 +215,6 @@ function History({
     docPDF.save("MoneyMap_Transactions.pdf");
   };
 
-  // ============================
-  // OPEN EDIT POPUP
-  // ============================
   const openEditPopup = (t) => {
     const dObj = toDateObj(t.date);
     const dateForInput = isNaN(dObj.getTime())
@@ -186,16 +235,12 @@ function History({
     setEditing(true);
   };
 
-  // ============================
-  // SAVE EDITED TRANSACTION
-  // ============================
   const saveEdit = async () => {
     try {
       const ref = doc(db, "transactions", editData.id);
 
       let newAmountNZD = editData.amountNZD;
 
-      // Recalculate amountNZD based on stored currency + latest cached rates
       const table = await getRatesTable();
       const rates = table?.rates || { NZD: 1 };
 
@@ -206,8 +251,6 @@ function History({
         newAmountNZD = amt;
       } else {
         const rate = rates?.[cur];
-        // If your rates table is "1 NZD = rate CUR"
-        // then NZD = CUR / rate  => NZD = amt * (1/rate)
         newAmountNZD = rate ? amt * (1 / rate) : amt;
       }
 
@@ -231,9 +274,6 @@ function History({
     }
   };
 
-  // ==========================
-  // UI styles (light + modern)
-  // ==========================
   const card = {
     background: "white",
     border: "1px solid #dbe3ea",
@@ -261,30 +301,42 @@ function History({
     textTransform: "capitalize",
   });
 
+  const newBadgeStyle = {
+    display: "inline-block",
+    marginLeft: 8,
+    padding: "3px 8px",
+    borderRadius: 999,
+    fontSize: 10,
+    fontWeight: 900,
+    background: "rgba(59,130,246,0.12)",
+    color: "#1d4ed8",
+    border: "1px solid rgba(59,130,246,0.30)",
+  };
+
   return (
     <div className="history-page" style={{ padding: 8 }}>
-      {/* Header */}
       <div style={{ marginBottom: 10 }}>
         <h2 style={{ margin: 0, color: "#0f172a" }}>Transaction History</h2>
         <p style={{ margin: "6px 0 0 0", color: "#64748b", fontSize: 13 }}>
-          View, export, and edit transactions. Showing converted values in{" "}
+          View, export, edit, and filter transactions. Showing converted values in{" "}
           <b>{selectedCurrency}</b>.
         </p>
       </div>
 
-      {/* ✅ NEW: Simple Search + Date Filter UI */}
+      {/* Filter UI */}
       <div style={{ ...card, marginBottom: 14 }}>
         <div
+          className="filter-grid"
           style={{
             display: "grid",
-            gridTemplateColumns: "2fr 1fr 1fr auto",
+            gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr auto",
             gap: 10,
             alignItems: "end",
           }}
         >
           <div>
             <div style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}>
-              Search (description)
+              Search
             </div>
             <input
               value={search}
@@ -298,6 +350,53 @@ function History({
                 marginTop: 6,
               }}
             />
+          </div>
+
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}>
+              Type
+            </div>
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              style={{
+                width: "100%",
+                padding: 10,
+                borderRadius: 12,
+                border: "1px solid #dbe3ea",
+                marginTop: 6,
+                background: "white",
+              }}
+            >
+              <option value="all">All Types</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
+
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 900, color: "#64748b" }}>
+              Category
+            </div>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              style={{
+                width: "100%",
+                padding: 10,
+                borderRadius: 12,
+                border: "1px solid #dbe3ea",
+                marginTop: 6,
+                background: "white",
+              }}
+            >
+              <option value="all">All Categories</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -337,11 +436,7 @@ function History({
           </div>
 
           <button
-            onClick={() => {
-              setSearch("");
-              setFromDate("");
-              setToDate("");
-            }}
+            onClick={clearFilters}
             style={{
               padding: "10px 14px",
               borderRadius: 12,
@@ -358,12 +453,11 @@ function History({
         </div>
 
         <div style={{ marginTop: 10, fontSize: 12, color: "#64748b" }}>
-          Showing <b>{filtered.length}</b> of <b>{transactions.length}</b>{" "}
-          transactions.
+          Showing <b>{filtered.length}</b> of <b>{transactions.length}</b> transactions.
         </div>
       </div>
 
-      {/* ✅ Summary Cards */}
+      {/* Main summary */}
       <div
         style={{
           display: "grid",
@@ -437,6 +531,80 @@ function History({
         </div>
       </div>
 
+      {/* Extra feature cards */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+          gap: 12,
+          margin: "14px 0",
+        }}
+      >
+        <div style={card}>
+          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 900 }}>
+            Top Spending Category
+          </div>
+          <div
+            style={{
+              fontSize: 18,
+              fontWeight: 900,
+              marginTop: 6,
+              color: "#7c3aed",
+            }}
+          >
+            {topCategory}
+          </div>
+        </div>
+
+        <div style={card}>
+          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 900 }}>
+            Income Entries
+          </div>
+          <div
+            style={{
+              fontSize: 18,
+              fontWeight: 900,
+              marginTop: 6,
+              color: "#16a34a",
+            }}
+          >
+            {quickStats.incomeCount}
+          </div>
+        </div>
+
+        <div style={card}>
+          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 900 }}>
+            Expense Entries
+          </div>
+          <div
+            style={{
+              fontSize: 18,
+              fontWeight: 900,
+              marginTop: 6,
+              color: "#dc2626",
+            }}
+          >
+            {quickStats.expenseCount}
+          </div>
+        </div>
+
+        <div style={card}>
+          <div style={{ fontSize: 12, color: "#64748b", fontWeight: 900 }}>
+            Added Today
+          </div>
+          <div
+            style={{
+              fontSize: 18,
+              fontWeight: 900,
+              marginTop: 6,
+              color: "#2563eb",
+            }}
+          >
+            {quickStats.todayCount}
+          </div>
+        </div>
+      </div>
+
       {/* Top actions */}
       <div
         style={{
@@ -448,7 +616,7 @@ function History({
       >
         <div style={{ color: "#64748b", fontSize: 12 }}>
           Tip: “Original” shows stored currency. “Converted” uses amountNZD →{" "}
-          {selectedCurrency}.
+          {selectedCurrency}. Large transactions above <b>500 {selectedCurrency}</b> are highlighted.
         </div>
 
         <button
@@ -468,7 +636,7 @@ function History({
         </button>
       </div>
 
-      {/* ✅ Table Card */}
+      {/* Table */}
       <div style={{ ...card, marginTop: 14, padding: 0 }}>
         {filtered.length === 0 ? (
           <p style={{ padding: 16, margin: 0 }}>No transactions found.</p>
@@ -518,9 +686,17 @@ function History({
                   const originalCurrency = t.currency || "NZD";
                   const originalAmount = safeNumber(t.amount);
                   const displayAmount = toDisplayAmount(t);
+                  const isLargeTransaction = displayAmount > 500;
 
                   return (
-                    <tr key={t.id}>
+                    <tr
+                      key={t.id}
+                      style={{
+                        background: isLargeTransaction
+                          ? "rgba(239, 68, 68, 0.06)"
+                          : "transparent",
+                      }}
+                    >
                       <td
                         style={{
                           padding: "12px 14px",
@@ -539,6 +715,9 @@ function History({
                         }}
                       >
                         {t.description || "-"}
+                        {isToday(t.date) && (
+                          <span style={newBadgeStyle}>NEW</span>
+                        )}
                       </td>
 
                       <td
@@ -615,7 +794,7 @@ function History({
         )}
       </div>
 
-      {/* ✅ Modern Edit Modal */}
+      {/* Edit Modal */}
       {editing && (
         <div
           style={{
@@ -851,14 +1030,20 @@ function History({
         </div>
       )}
 
-      {/* Responsive */}
       <style>{`
+        @media (max-width: 1100px) {
+          .history-page .filter-grid {
+            grid-template-columns: 1fr 1fr 1fr !important;
+          }
+        }
+
         @media (max-width: 900px) {
           .history-page > div[style*="repeat(4"] {
             grid-template-columns: 1fr !important;
           }
         }
-        @media (max-width: 820px) {
+
+        @media (max-width: 700px) {
           .history-page .filter-grid {
             grid-template-columns: 1fr !important;
           }
