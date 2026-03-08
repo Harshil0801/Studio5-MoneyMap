@@ -2,10 +2,11 @@
 body {
   margin: 0;
   font-family: "Poppins", sans-serif;
-  background-color: #f4faf9;
   color: #333;
 }
-
+html, body, #root {
+  height: 100%;
+}
 .navbar {
   background-color: #008080;
   padding: 15px 30px;

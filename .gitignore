@@ -28,3 +28,8 @@ functions/.env
 # Node modules
 node_modules/
 functions/node_modules/
+
+# Firebase
+.firebase/
+firebase-debug.log
+hosting.*.cache

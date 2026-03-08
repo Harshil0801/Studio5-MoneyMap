@@ -26,8 +26,6 @@ import BudgetAdvisor from "./components/BudgetAdvisor";
 import AdminDashboard from "./pages/AdminDashboard";
 import UserDetails from "./pages/UserDetails";
 
-import { auth } from "./firebase";
-
 import "./App.css";
 
 function App() {
@@ -37,16 +35,21 @@ function App() {
 function AppContent() {
   const location = useLocation();
 
-  // Hide Navbar on auth pages
+  // Hide Navbar on login/register pages
   const hideNavbarPaths = ["/login", "/register", "/forgot-password"];
   const shouldHideNavbar = hideNavbarPaths.includes(location.pathname);
 
-  const isAdmin = auth.currentUser?.email === "moneymapadmin@gmail.com";
+  // Get role from localStorage
+  const role = localStorage.getItem("userRole");
 
+  // RBAC Admin Route Protection
   const AdminProtectedRoute = ({ children }) => {
-    if (!auth.currentUser) return <Navigate to="/login" />;
 
-    if (!isAdmin) {
+    if (!role) {
+      return <Navigate to="/login" />;
+    }
+
+    if (role !== "admin") {
       return (
         <div style={{ padding: 30 }}>
           <h2>Access Denied</h2>
@@ -63,6 +66,8 @@ function AppContent() {
       {!shouldHideNavbar && <Navbar />}
 
       <Routes>
+
+        {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -78,8 +83,8 @@ function AppContent() {
         <Route path="/converter" element={<CurrencyConverterWidget />} />
         <Route path="/user-summary" element={<UserSummary />} />
         <Route path="/transaction-pdf" element={<TransactionPdf />} />
-
-        {/* Protected QR */}
+        <Route path="/dashboard" element={<Dashboard />} />
+        {/* Protected Routes */}
         <Route
           path="/generate-qr"
           element={
@@ -89,17 +94,9 @@ function AppContent() {
           }
         />
 
-        {/* Protected Dashboard */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+        
 
-        {/* Admin Dashboard */}
+        {/* Admin RBAC Routes */}
         <Route
           path="/AdminDashboard"
           element={
@@ -117,6 +114,7 @@ function AppContent() {
             </AdminProtectedRoute>
           }
         />
+
       </Routes>
 
       {!shouldHideNavbar && <BudgetAdvisor />}
