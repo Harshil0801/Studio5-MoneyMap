@@ -28,9 +28,9 @@
   "scripts": {
     "start": "react-scripts start",
     "server": "node server.js",
-    "build": "react-scripts build"
+    "build": "react-scripts build",
+    "test": "react-scripts test"
   },
-
   "browserslist": {
     "production": [
       ">0.2%",
