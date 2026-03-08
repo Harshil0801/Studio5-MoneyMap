@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useLocation,
-  Navigate,
-} from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -18,10 +12,12 @@ import Terms from "./pages/Terms";
 import UserSummary from "./pages/UserSummary";
 import AboutUs from "./pages/AboutUs";
 import UpdateProfile from "./pages/UpdateProfile";
-
-
-// ✅ ADD THIS
+import HelpPage from "./pages/HelpPage";
+import GenerateQR from "./pages/GenerateQR";
+import ChangePassword from "./pages/ChangePassword";
 import TransactionPdf from "./pages/TransactionPdf";
+import AddTransaction from "./pages/AddTransaction";
+import CurrencyConverterWidget from "./components/CurrencyConverterWidget";
 
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -30,33 +26,30 @@ import BudgetAdvisor from "./components/BudgetAdvisor";
 import AdminDashboard from "./pages/AdminDashboard";
 import UserDetails from "./pages/UserDetails";
 
-import { auth } from "./firebase";
-
 import "./App.css";
 
 function App() {
-  return (
-    <Router>
-      <AppContent />
-    </Router>
-  );
+  return <AppContent />;
 }
 
 function AppContent() {
   const location = useLocation();
 
-  // Hide Navbar on auth pages
+  // Hide Navbar on login/register pages
   const hideNavbarPaths = ["/login", "/register", "/forgot-password"];
   const shouldHideNavbar = hideNavbarPaths.includes(location.pathname);
 
-  // Admin checker (only 1 allowed)
-  const isAdmin = auth.currentUser?.email === "moneymapadmin@gmail.com";
+  // Get role from localStorage
+  const role = localStorage.getItem("userRole");
 
+  // RBAC Admin Route Protection
   const AdminProtectedRoute = ({ children }) => {
-    if (!auth.currentUser) {
+
+    if (!role) {
       return <Navigate to="/login" />;
     }
-    if (!isAdmin) {
+
+    if (role !== "admin") {
       return (
         <div style={{ padding: 30 }}>
           <h2>Access Denied</h2>
@@ -64,50 +57,46 @@ function AppContent() {
         </div>
       );
     }
+
     return children;
   };
 
   return (
     <>
-      {/* Navbar visible everywhere except login/register/forgot */}
       {!shouldHideNavbar && <Navbar />}
 
       <Routes>
-        <Route path="/" element={<Home />} />
 
-        {/* Auth pages */}
+        {/* Public Routes */}
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-
-        {/* Public pages */}
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/feedback" element={<Feedback />} />
-
-        <Route path="/user-summary" element={<UserSummary />} />
-  feature/qr-transaction-pdf
-        {/* ✅ ADD THIS ROUTE */}
-        <Route path="/transaction-pdf" element={<TransactionPdf />} />
- 
         <Route path="/about" element={<AboutUs />} />
         <Route path="/update-profile" element={<UpdateProfile />} />
-
-        
-  main
-
-        <Route path="/about" element={<AboutUs />} />
-
+        <Route path="/help" element={<HelpPage />} />
+        <Route path="/add-transaction" element={<AddTransaction />} />
+        <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/converter" element={<CurrencyConverterWidget />} />
+        <Route path="/user-summary" element={<UserSummary />} />
+        <Route path="/transaction-pdf" element={<TransactionPdf />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        {/* Protected Routes */}
         <Route
-          path="/dashboard"
+          path="/generate-qr"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <GenerateQR />
             </ProtectedRoute>
           }
         />
 
-        {/* Admin Dashboard */}
+        
+
+        {/* Admin RBAC Routes */}
         <Route
           path="/AdminDashboard"
           element={
@@ -117,7 +106,6 @@ function AppContent() {
           }
         />
 
-        {/* Admin → User Details */}
         <Route
           path="/admin/user/:uid"
           element={
@@ -126,9 +114,9 @@ function AppContent() {
             </AdminProtectedRoute>
           }
         />
+
       </Routes>
 
-      {/* Floating assistant */}
       {!shouldHideNavbar && <BudgetAdvisor />}
     </>
   );

@@ -1,13 +1,19 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
- 
 
- 
-import { auth } from "../firebase";
-  
-function ProtectedRoute({ children }) {
-  const user = auth.currentUser;
-  return user ? children : <Navigate to="/" />;
-}
+const ProtectedRoute = ({ children, allowedRole }) => {
+
+  const role = localStorage.getItem("userRole");
+
+  if (!role) {
+    return <Navigate to="/login" />;
+  }
+
+  if (role !== allowedRole) {
+    return <Navigate to="/dashboard" />;
+  }
+
+  return children;
+};
 
 export default ProtectedRoute;

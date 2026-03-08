@@ -313,3 +313,58 @@
   font-size: 16px;
   font-weight: 600;
 }
+
+/* ===== ADMIN OVERVIEW (ONLY FOR ADMIN) ===== */
+
+.admin-overview {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.admin-card {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  width: 220px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.admin-card:hover {
+  transform: translateY(-4px);
+}
+/* ADMIN TABLE */
+
+.admin-results{
+  margin:40px auto;
+  max-width:900px;
+  background:white;
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+.admin-table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.admin-table th{
+  text-align:left;
+  padding:14px;
+  background:#f5f7fb;
+  font-weight:600;
+}
+
+.admin-table td{
+  padding:14px;
+  border-bottom:1px solid #e5e7eb;
+}
+
+.admin-table tr:hover{
+  background:#f9fafb;
+}

@@ -13,7 +13,7 @@ import "../styles/Dashboard.css";
 
 import { auth, db } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, getDoc, getDocs, doc, setDoc } from "firebase/firestore";
+import { collection, getDoc, getDocs, doc, setDoc, query, where } from "firebase/firestore";
 
 import {
   getRate,
@@ -37,7 +37,7 @@ const Dashboard = () => {
   const [rateUpdatedAt, setRateUpdatedAt] = useState(null);
 
   // rate metadata
-  const [rateStatus, setRateStatus] = useState("CACHED"); // LIVE/CACHED/STALE/OFFLINE
+  const [rateStatus, setRateStatus] = useState("CACHED");
   const [nextRefreshInMs, setNextRefreshInMs] = useState(null);
 
   // Budget popup
@@ -74,19 +74,24 @@ const Dashboard = () => {
   }, []);
 
   // ===========================
-  // FETCH TRANSACTIONS
+  // FETCH TRANSACTIONS (FIXED)
   // ===========================
   const fetchTransactions = useCallback(async () => {
     const user = auth.currentUser;
     if (!user) return;
 
     try {
-      const ref = collection(db, "transactions");
-      const snap = await getDocs(ref);
+      const q = query(
+        collection(db, "transactions"),
+        where("uid", "==", user.uid)
+      );
 
-      const list = snap.docs
-        .map((d) => ({ id: d.id, ...d.data() }))
-        .filter((t) => t.uid === user.uid);
+      const snap = await getDocs(q);
+
+      const list = snap.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      }));
 
       setTransactions(list);
     } catch (err) {
@@ -116,7 +121,7 @@ const Dashboard = () => {
   );
 
   // ===========================
-  // LOAD EXCHANGE RATE (CACHED)
+  // LOAD EXCHANGE RATE
   // ===========================
   useEffect(() => {
     const loadRate = async () => {
@@ -196,7 +201,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <div className="dashboard-shell">
-        {/* HEADER */}
+
         <div className="dashboard-header">
           <div>
             <h1>Dashboard</h1>
@@ -210,7 +215,7 @@ const Dashboard = () => {
 
         {/* TOP GRID */}
         <div className="dashboard-topgrid">
-          {/* Currency + Exchange */}
+
           <div className="dashboard-card">
             <div className="card-title">Currency & Exchange Rates</div>
 
@@ -244,9 +249,7 @@ const Dashboard = () => {
                   Base <b>NZD</b> → <b>{selectedCurrency}</b>
                 </div>
 
-                <span
-                  className={`status-pill status-${String(rateStatus).toLowerCase()}`}
-                >
+                <span className={`status-pill status-${String(rateStatus).toLowerCase()}`}>
                   {rateStatus}
                 </span>
 
@@ -298,54 +301,25 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Converter */}
           <div className="dashboard-card">
             <div className="card-title">Quick Currency Converter</div>
             <CurrencyConverterWidget defaultTo={selectedCurrency} />
           </div>
+
         </div>
 
         {/* TABS */}
         <div className="dashboard-tabs pro-tabs">
-          <button
-            className={activeTab === "overview" ? "active" : ""}
-            onClick={() => setActiveTab("overview")}
-            type="button"
-          >
-            Overview
-          </button>
-          <button
-            className={activeTab === "history" ? "active" : ""}
-            onClick={() => setActiveTab("history")}
-            type="button"
-          >
-            History
-          </button>
-          <button
-            className={activeTab === "add" ? "active" : ""}
-            onClick={() => setActiveTab("add")}
-            type="button"
-          >
-            Add Transaction
-          </button>
-          <button
-            className={activeTab === "weekly" ? "active" : ""}
-            onClick={() => setActiveTab("weekly")}
-            type="button"
-          >
-            Weekly Report
-          </button>
-          <button
-            className={activeTab === "qr" ? "active" : ""}
-            onClick={() => setActiveTab("qr")}
-            type="button"
-          >
-            QR Generator
-          </button>
+          <button className={activeTab === "overview" ? "active" : ""} onClick={() => setActiveTab("overview")}>Overview</button>
+          <button className={activeTab === "history" ? "active" : ""} onClick={() => setActiveTab("history")}>History</button>
+          <button className={activeTab === "add" ? "active" : ""} onClick={() => setActiveTab("add")}>Add Transaction</button>
+          <button className={activeTab === "weekly" ? "active" : ""} onClick={() => setActiveTab("weekly")}>Weekly Report</button>
+          <button className={activeTab === "qr" ? "active" : ""} onClick={() => setActiveTab("qr")}>QR Generator</button>
         </div>
 
         {/* CONTENT */}
         <div className="dashboard-content pro-content">
+
           {activeTab === "overview" && (
             <Overview
               transactions={transactions}
@@ -377,6 +351,7 @@ const Dashboard = () => {
           )}
 
           {activeTab === "qr" && <GenerateQR />}
+
         </div>
 
         {/* MONTHLY BUDGET */}
@@ -409,6 +384,7 @@ const Dashboard = () => {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
