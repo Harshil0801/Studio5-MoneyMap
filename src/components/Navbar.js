@@ -9,6 +9,7 @@ function Navbar() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [openLang, setOpenLang] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -19,8 +20,14 @@ function Navbar() {
 
   const handleLogout = async () => {
     await signOut(auth);
+    setMenuOpen(false);
     navigate("/login");
   };
+
+ feature/mobile-responsive-ui
+  const changeLanguage = (lang) => {
+    const interval = setInterval(() => {
+      const select = document.querySelector(".goog-te-combo");
 
 const changeLanguage = (lang) => {
   const googleTranslateCookie = `/auto/${lang}`;
@@ -33,33 +40,49 @@ const changeLanguage = (lang) => {
   setOpenLang(false);
 };
 
+ feature/mobile-responsive-ui
+    setOpenLang(false);
+    setMenuOpen(false);
+  };
+
+  const closeMenus = () => {
+    setMenuOpen(false);
+    setOpenLang(false);
+  };
 
 
   return (
     <nav className="navbar">
-
       <h2 className="nav-logo">MoneyMap 💸</h2>
 
-      <div className="nav-links">
-        <Link to="/">Home</Link>
+      <button
+        className="menu-toggle"
+        onClick={() => setMenuOpen(!menuOpen)}
+        type="button"
+      >
+        ☰
+      </button>
 
-        {!user && <Link to="/login">Login</Link>}
-        {!user && <Link to="/register">Register</Link>}
+      <div className={`nav-links ${menuOpen ? "active" : ""}`}>
+        <Link to="/" onClick={closeMenus}>Home</Link>
+
+        {!user && <Link to="/login" onClick={closeMenus}>Login</Link>}
+        {!user && <Link to="/register" onClick={closeMenus}>Register</Link>}
 
         {user && auth.currentUser?.email !== "moneymapadmin@gmail.com" && (
-          <Link to="/dashboard">Dashboard</Link>
+          <Link to="/dashboard" onClick={closeMenus}>Dashboard</Link>
         )}
 
         {user && auth.currentUser?.email === "moneymapadmin@gmail.com" && (
-          <Link to="/AdminDashboard">Dashboard</Link>
+          <Link to="/AdminDashboard" onClick={closeMenus}>Dashboard</Link>
         )}
 
-        <Link to="/contact">Contact</Link>
-        <Link to="/help">Help</Link>
-        <Link to="/terms">Terms</Link>
+        <Link to="/contact" onClick={closeMenus}>Contact</Link>
+        <Link to="/help" onClick={closeMenus}>Help</Link>
+        <Link to="/terms" onClick={closeMenus}>Terms</Link>
 
         {user && (
-          <button onClick={handleLogout} className="logout-btn">
+          <button onClick={handleLogout} className="logout-btn" type="button">
             Logout
           </button>
         )}
@@ -68,6 +91,7 @@ const changeLanguage = (lang) => {
           <button
             className="language-btn"
             onClick={() => setOpenLang(!openLang)}
+            type="button"
           >
             🌐 Language
           </button>
@@ -81,9 +105,7 @@ const changeLanguage = (lang) => {
         </div>
       </div>
 
-      {/* Hidden Google Translate element */}
       <div id="google_translate_element" style={{ display: "none" }}></div>
-
     </nav>
   );
 }
