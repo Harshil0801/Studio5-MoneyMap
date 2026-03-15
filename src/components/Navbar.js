@@ -24,23 +24,17 @@ function Navbar() {
     navigate("/login");
   };
 
- feature/mobile-responsive-ui
   const changeLanguage = (lang) => {
     const interval = setInterval(() => {
       const select = document.querySelector(".goog-te-combo");
 
-const changeLanguage = (lang) => {
-  const googleTranslateCookie = `/auto/${lang}`;
-  
-  document.cookie = `googtrans=${googleTranslateCookie};path=/`;
-  document.cookie = `googtrans=${googleTranslateCookie};domain=${window.location.hostname};path=/`;
+      if (select) {
+        select.value = lang;
+        select.dispatchEvent(new Event("change"));
+        clearInterval(interval);
+      }
+    }, 500);
 
-  window.location.reload();
-
-  setOpenLang(false);
-};
-
- feature/mobile-responsive-ui
     setOpenLang(false);
     setMenuOpen(false);
   };
@@ -49,7 +43,6 @@ const changeLanguage = (lang) => {
     setMenuOpen(false);
     setOpenLang(false);
   };
-
 
   return (
     <nav className="navbar">
