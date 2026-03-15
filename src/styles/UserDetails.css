@@ -1,0 +1,78 @@
+.user-details-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.user-details-container h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #004d40;
+  margin-bottom: 20px;
+}
+
+.user-profile-box {
+  background: #f6fffc;
+  padding: 20px;
+  border-radius: 10px;
+  border-left: 6px solid #009688;
+  margin-bottom: 30px;
+}
+
+.user-profile-box h3 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  color: #004d40;
+}
+
+.user-profile-box p {
+  margin: 6px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.tx-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tx-table thead {
+  background: #e0f2f1;
+}
+
+.tx-table th {
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: left;
+  color: #004d40;
+  border-bottom: 2px solid #b2dfdb;
+}
+
+.tx-table td {
+  padding: 12px;
+  font-size: 15px;
+  border-bottom: 1px solid #e0e0e0;
+  color: #444;
+}
+
+.tx-table tr:hover {
+  background: #f1fefb;
+}
+
+.amount-income {
+  color: green;
+  font-weight: 600;
+}
+
+.amount-expense {
+  color: #d32f2f;
+  font-weight: 600;
+}
