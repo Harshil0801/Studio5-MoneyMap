@@ -68,3 +68,18 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### Environment Setup
+
+This project uses environment variables for secure API configuration.
+
+Create a file in the functions folder called:
+
+functions/.env
+
+Add your API key:
+
+OPENROUTER_API_KEY=your_api_key_here
+
+Important:
+- Do not push `.env` files to GitHub
+- Use `.env.example` as a reference
