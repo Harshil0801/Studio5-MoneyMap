@@ -104,75 +104,97 @@ function Overview({
   }, [transactions, exchangeRate, selectedCurrency]);
 
   // ===================================
-  // WEEKLY DATA (Bar)
+// WEEKLY DATA (Bar)
+// ===================================
+const weeklyData = useMemo(() => {
+  const weekLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const incomeTotals = new Array(7).fill(0);
+  const expenseTotals = new Array(7).fill(0);
+
+  transactions.forEach((t) => {
+    const d = toDateObj(t.date);
+    if (!d || isNaN(d.getTime())) return;
+
+    const day = d.getDay(); // 0 Sun ... 6 Sat
+    const i = day === 0 ? 6 : day - 1;
+    const amount = toDisplayAmount(t);
+
+    if (t.type === "income") {
+      incomeTotals[i] += amount;
+    } else if (t.type === "expense") {
+      expenseTotals[i] += amount;
+    }
+  });
+
+  return {
+    labels: weekLabels,
+    datasets: [
+      {
+        label: `Income (${selectedCurrency})`,
+        data: incomeTotals.map((x) => Number(x.toFixed(2))),
+        backgroundColor: "rgba(22, 163, 74, 0.8)",
+        borderRadius: 10,
+      },
+      {
+        label: `Expense (${selectedCurrency})`,
+        data: expenseTotals.map((x) => Number(x.toFixed(2))),
+        backgroundColor: "rgba(220, 38, 38, 0.8)",
+        borderRadius: 10,
+      },
+    ],
+  };
+}, [transactions, exchangeRate, selectedCurrency]);
+
   // ===================================
-  const weeklyData = useMemo(() => {
-    const weekLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const totals = new Array(7).fill(0);
+// MONTHLY DATA 
+// ===================================
+const monthlyData = useMemo(() => {
+  const months = [
+    "Jan","Feb","Mar","Apr","May","Jun",
+    "Jul","Aug","Sep","Oct","Nov","Dec"
+  ];
 
-    transactions.forEach((t) => {
-      const d = toDateObj(t.date);
-      if (!d || isNaN(d.getTime())) return;
+  const incomeTotals = new Array(12).fill(0);
+  const expenseTotals = new Array(12).fill(0);
 
-      const day = d.getDay(); // 0 Sun ... 6 Sat
-      const i = day === 0 ? 6 : day - 1;
-      totals[i] += toDisplayAmount(t);
-    });
+  transactions.forEach((t) => {
+    const d = toDateObj(t.date);
+    if (!d || isNaN(d.getTime())) return;
 
-    return {
-      labels: weekLabels,
-      datasets: [
-        {
-          label: `Weekly Total (${selectedCurrency})`,
-          data: totals.map((x) => Number(x.toFixed(2))),
-          backgroundColor: "rgba(15, 118, 110, 0.75)",
-          borderRadius: 10,
-        },
-      ],
-    };
-  }, [transactions, exchangeRate, selectedCurrency]);
+    const monthIndex = d.getMonth();
+    const amount = toDisplayAmount(t);
 
-  // ===================================
-  // MONTHLY DATA (Line)
-  // ===================================
-  const monthlyData = useMemo(() => {
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const totals = new Array(12).fill(0);
+    if (t.type === "income") {
+      incomeTotals[monthIndex] += amount;
+    } else if (t.type === "expense") {
+      expenseTotals[monthIndex] += amount;
+    }
+  });
 
-    transactions.forEach((t) => {
-      const d = toDateObj(t.date);
-      if (!d || isNaN(d.getTime())) return;
-      totals[d.getMonth()] += toDisplayAmount(t);
-    });
-
-    return {
-      labels: months,
-      datasets: [
-        {
-          label: `Monthly Total (${selectedCurrency})`,
-          data: totals.map((x) => Number(x.toFixed(2))),
-          borderColor: "rgba(15, 118, 110, 1)",
-          backgroundColor: "rgba(15, 118, 110, 0.15)",
-          tension: 0.35,
-          fill: true,
-          pointRadius: 2,
-        },
-      ],
-    };
-  }, [transactions, exchangeRate, selectedCurrency]);
+  return {
+    labels: months,
+    datasets: [
+      {
+        label: `Income (${selectedCurrency})`,
+        data: incomeTotals.map((x) => Number(x.toFixed(2))),
+        borderColor: "#16a34a", // GREEN
+        backgroundColor: "rgba(22,163,74,0.15)",
+        tension: 0.35,
+        fill: false,
+        pointRadius: 3,
+      },
+      {
+        label: `Expense (${selectedCurrency})`,
+        data: expenseTotals.map((x) => Number(x.toFixed(2))),
+        borderColor: "#dc2626", // RED
+        backgroundColor: "rgba(220,38,38,0.15)",
+        tension: 0.35,
+        fill: false,
+        pointRadius: 3,
+      },
+    ],
+  };
+}, [transactions, exchangeRate, selectedCurrency]);
 
   // ===================================
   // CUSTOM RANGE DATA (Line)
